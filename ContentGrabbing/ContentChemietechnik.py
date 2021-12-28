@@ -5,13 +5,9 @@ from Database import Database
 from urllib.parse import urlparse
 from newspaper import Article
 
-db = Database('dbcfg.ini').connect()
-
-if db is None:
-    sys.exit()
 
 
-def get_content(l):
+def get_content(l, db):
     link = l[0]
     if urlparse(link).netloc != "www.chemietechnik.de":
         return
@@ -31,4 +27,11 @@ def get_content(l):
             print("Retry....")
             time.sleep(10)
 
-db.execute_and_run("SELECT link FROM articles", attributes=[], callback=lambda l: get_content(l))
+def run():
+
+    db = Database('dbcfg.ini').connect()
+
+    if db is None:
+        sys.exit()
+
+    db.execute_and_run("SELECT link FROM articles", attributes=[], callback=lambda l: get_content(l, db))

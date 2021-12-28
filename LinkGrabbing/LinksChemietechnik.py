@@ -34,26 +34,26 @@ def get_links_from_pages(URL):
 
     return links
 
+def run():
+    with open('ChemietechnikURLs.txt') as f:
+        lines = f.readlines()
 
-with open('ChemietechnikURLs.txt') as f:
-    lines = f.readlines()
-
-urls = [l.replace("\n", "") for l in lines]
-print("URLs:", lines)
-
-
-db = Database('dbcfg.ini').connect()
-
-article_links = []
-
-count = 0
-
-for url in urls:
-    article_links = get_links_from_pages(url)
-    count += len(article_links)
-    print("Saving in DB")
-    for l in article_links:
-        db.add_article(l[0], release_date=l[1])
+    urls = [l.replace("\n", "") for l in lines]
+    print("URLs:", lines)
 
 
-print("Found", count, "links and saved them in DB.")
+    db = Database('dbcfg.ini').connect()
+
+    article_links = []
+
+    count = 0
+
+    for url in urls:
+        article_links = get_links_from_pages(url)
+        count += len(article_links)
+        print("Saving in DB")
+        for l in article_links:
+            db.add_article(l[0], release_date=l[1])
+
+
+    print("Found", count, "links and saved them in DB.")
