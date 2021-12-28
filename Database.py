@@ -1,36 +1,6 @@
 from configparser import ConfigParser
 import psycopg2
-
-
-def progressBar(iterable, lenit, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iterable    - Required  : iterable object (Iterable)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    total = lenit
-
-    # Progress Bar Printing Function
-    def printProgressBar(iteration):
-        percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-        filledLength = int(length * iteration // total)
-        bar = fill * filledLength + '-' * (length - filledLength)
-        print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
-
-    # Initial Call
-    printProgressBar(0)
-    # Update Progress Bar
-    for i, item in enumerate(iterable):
-        yield item
-        printProgressBar(i + 1)
-    # Print New Line on Complete
-    print()
+from tqdm import tqdm
 
 
 class Database:
@@ -69,15 +39,14 @@ class Database:
             return self.cursor.fetchall()
         return None
 
-    def execute_and_run(self, sql, attributes=None, callback=lambda line: print(line), progress_bar=True):
+    def execute_and_run(self, sql, attributes=None, callback=lambda line: print(line), progress_bar=False):
         with self.connection.cursor() as cur:
             cur.execute(sql, tuple(attributes))
             size = cur.rowcount
             if cur.rowcount > 0:
                 if progress_bar:
-                    for l in (progressBar(cur, size, prefix='Progress:', suffix='Complete', length=50) if progress_bar else cur):
+                    for l in (cur if progress_bar else tqdm(cur)):
                         callback(l)
-
 
     def add_article(self, link, article="", release_date=""):
         sql = "INSERT INTO articles (link, content, release_date) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING"
