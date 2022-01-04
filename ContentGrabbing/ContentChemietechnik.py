@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 from newspaper import Article
 
 
-
 def get_content(l, db):
     link = l[0]
     if urlparse(link).netloc != "www.chemietechnik.de":
@@ -27,11 +26,15 @@ def get_content(l, db):
             print("Retry....")
             time.sleep(10)
 
-def run():
 
+def run():
     db = Database('dbcfg.ini').connect()
 
     if db is None:
         sys.exit()
 
     db.execute_and_run("SELECT link FROM articles", attributes=[], callback=lambda l: get_content(l, db))
+
+
+def __init__():
+    pass
