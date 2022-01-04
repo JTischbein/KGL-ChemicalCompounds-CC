@@ -5,15 +5,12 @@ from langdetect import detect_langs, DetectorFactory, detect
 
 db = Database('../dbcfg.ini').connect()
 
-def detect_language(text):
-    langs = detect_langs(text)
-    for l in langs:
-        return l.lang
 
-def detect(line):
+def set_lang_for_article(line):
     if not line[1] or line[1] == "": return
-    lang = detect_language(line[1])
+    lang = detect(line[1])
+    print(lang)
     db.set_language(line[0], lang)
 
 
-db.execute_and_run('SELECT * FROM articles', callback=detect, progress_bar=True)
+db.execute_and_run('SELECT * FROM articles', callback=set_lang_for_article, progress_bar=True)
