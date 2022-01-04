@@ -39,7 +39,7 @@ class Database:
             return self.cursor.fetchall()
         return None
 
-    def execute_and_run(self, sql, attributes=None, callback=lambda line: print(line), progress_bar=False):
+    def execute_and_run(self, sql, attributes=[], callback=lambda line: print(line), progress_bar=False):
         with self.connection.cursor() as cur:
             cur.execute(sql, tuple(attributes))
             size = cur.rowcount
@@ -66,3 +66,6 @@ class Database:
     def add_word(self, topic, link, synonym, tag):
         self.execute('INSERT INTO ' + topic + ' (link, synonym, tag) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING',
                      (link, synonym, tag), fetch=False)
+
+    def set_language(self, link, language):
+        self.execute("UPDATE articles SET language = %s WHERE link = %s", (language, link))
