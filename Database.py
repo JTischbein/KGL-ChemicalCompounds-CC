@@ -43,6 +43,7 @@ class Database:
         with self.connection.cursor() as cur:
             cur.execute(sql, tuple(attributes))
             size = cur.rowcount
+            print(size)
             if cur.rowcount > 0:
                 if progress_bar:
                     for l in (cur if progress_bar else tqdm(cur)):
