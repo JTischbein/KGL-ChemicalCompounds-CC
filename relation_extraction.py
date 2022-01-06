@@ -3,10 +3,7 @@ from nltk import tokenize
 import psycopg2
 from tqdm import tqdm
 
-
 import config
-
-nlp = spacy.load("de_core_news_sm")
 
 conn = psycopg2.connect(host=config.host, port=config.port, dbname=config.dbname, user=config.user, password=config.password)
 cur = conn.cursor()                                                                                                                                                   
@@ -48,14 +45,13 @@ def get_entities(noun_sentences):
             elif noun in chemicals:
                 chemical_list.append((noun, idx))
             elif noun in locations:
-               location_list.append((noun, idx))
+                location_list.append((noun, idx))
     return company_list, chemical_list, location_list 
 
 def get_chemical(article_chemicals, sentence_index):
     for chemical in article_chemicals:
         if chemical[1] == sentence_index:
             return chemical[0]
-
 
 def remove_chemical(article_chemicals, sentence_index):
     for chemical in article_chemicals:
@@ -103,12 +99,10 @@ def closest_entity(article_companies, article_chemicals, article_locations):
 english_deps = ["nsubj", "nsubj_pass", "dobj", "iobj", "pobj"]
 german_deps = ["sb", "sbp", "oa", "og", "op"]
 
-article_count = 0
-
 english_nlp = spacy.load("en_core_web_sm")
 german_nlp = spacy.load("de_core_news_sm")
 
-for article in tqdm(articles):
+for article_count, article in enumerate(tqdm(articles)):
     article_count += 1
 
     if article[2] == "en":
@@ -124,9 +118,9 @@ for article in tqdm(articles):
     article_companies, article_chemicals, article_locations = get_entities(noun_sentences)
 
     chemical_indices = [chemical[1] for chemical in article_chemicals]
-    chemical_compounds = [chemical[0] for chemical in article_chemicals]
+    article_compounds = [chemical[0] for chemical in article_chemicals]
     location_indices = [location[1] for location in article_locations]
-    locations = [location[0] for location in article_locations]
+    article_countries = [location[0] for location in article_locations]
 
     for company in article_companies:
         sentence_index = company[1]
@@ -135,7 +129,7 @@ for article in tqdm(articles):
             class_1 = False
             for token in nlp(sentence):
                 # class 1: chemical is object of company or vice versa
-                if token.dep_ in deps and token.text in chemical_compounds:
+                if token.dep_ in deps and token.text in article_compounds:
                     cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], token.text, 1, 0, article[1]))
                     class_1 = True
             # class 2: no specific relationship, but appear in the same sentence
@@ -148,7 +142,7 @@ for article in tqdm(articles):
             class_1 = False
             for token in nlp(sentence):
                 # class 1: location is object of company or vice versa
-                if token.dep_ in deps and token.text in locations:
+                if token.dep_ in deps and token.text in article_countries:
                     cur.execute("INSERT INTO company_location (company, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s,  %s)", (company[0], token.text, 1, 0, article[1]))
                     class_1 = True
             # class 2: no specific relationship, but appear in the same sentence
@@ -165,8 +159,3 @@ conn.commit()
 
 cur.close()
 conn.close()
-
-
-# scispacy
-# neo4j
-# openai api
