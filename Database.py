@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from sqlite3 import ProgrammingError
 import psycopg2
 from tqdm import tqdm
 
@@ -34,16 +35,18 @@ class Database:
         self.connection.close()
 
     def execute(self, sql, attributes=None, fetch=True):
-        self.cursor.execute(sql, attributes)
-        if fetch and self.cursor.rowcount == -1:
-            return self.cursor.fetchall()
-        return None
+        with self.connection.cursor() as cur:
+            cur.execute(sql, attributes)
+            if not fetch: return None
+            try:
+                return cur.fetchall()
+            except psycopg2.ProgrammingError:
+                return None
 
     def execute_and_run(self, sql, attributes=[], callback=lambda line: print(line), progress_bar=False):
         with self.connection.cursor() as cur:
             cur.execute(sql, tuple(attributes))
             size = cur.rowcount
-            print(size)
             if cur.rowcount > 0:
                 if progress_bar:
                     for l in (cur if progress_bar else tqdm(cur)):
@@ -70,3 +73,8 @@ class Database:
 
     def set_language(self, link, language):
         self.execute("UPDATE articles SET language = %s WHERE link = %s", (language, link))
+
+    def add_word_to_dict(self, table_name, word, synonym="", synonym_id=-1):
+        rows = self.execute('SELECT * FROM ' + table_name + ' WHERE name = %s', attributes=(word,))
+        if len(rows) > 0: return None
+        self.execute('INSERT INTO ' + table_name + ' (name) VALUES (%s)', (word,))
