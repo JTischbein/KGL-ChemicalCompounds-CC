@@ -49,7 +49,7 @@ class Database:
             size = cur.rowcount
             if cur.rowcount > 0:
                 if progress_bar:
-                    for l in (cur if progress_bar else tqdm(cur)):
+                    for l in (cur if not progress_bar else tqdm(cur, total=cur.rowcount)):
                         callback(l)
 
     def add_article(self, link, article="", release_date=""):
