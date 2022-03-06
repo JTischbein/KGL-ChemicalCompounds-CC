@@ -23,11 +23,14 @@ query = Query(query=substanceQueryStr,
                   name="Recognized chemical compounds",
                   lang="sparql")
 queryResLoD = endpoint.queryAsListOfDicts(query.query)
-entries = [record.get('companyLabel') for record in queryResLoD]
-print(len(entries))
+entries = [(record.get('company'), record.get('companyLabel')) for record in queryResLoD]
+
 
 db = Database('../dbcfg.ini').connect()
 
-for word in entries:
-    db.add_word_to_dict('company_wikidata', word)
+for tag, word in entries:
+    tag = tag.split("/")[-1]
+    print(tag)
+    db.execute('UPDATE company_wikidata SET tag = %s WHERE "name" = %s', attributes=(tag, word))
+    #db.add_word_to_dict('company_wikidata', word, tag)
 
