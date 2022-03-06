@@ -23,11 +23,11 @@ if __name__ == "__main__":
         graph.create_entity(company, "Company")
     
     # Add all chemicals to the graph
-    cur.execute("SELECT DISTINCT synonym FROM chemicals")
+    cur.execute("SELECT ch.chemical_formula, ch.tag, array_agg(DISTINCT ch2.synonym) FROM chemicals ch LEFT JOIN chemicals ch2 ON ch.chemical_formula = ch2.chemical_formula GROUP BY ch.chemical_formula, ch.tag")
     chemicals = cur.fetchall()
-    chemicals = [chemical[0] for chemical in chemicals]
-    for chemical in tqdm(chemicals):
-        graph.create_entity(chemical, "chemical_compound")
+    chemicals = [chemical for chemical in chemicals if chemical[0] is not None]
+    for chemical in chemicals:
+        graph.create_entity(chemical[0], "chemical_compound", chemical[2])
     
     # Add all locations to the graph
     cur.execute("SELECT DISTINCT synonym FROM locations")

@@ -11,15 +11,18 @@ class KnowledgeGraph:
         # Don't forget to close the driver connection when you are finished with it
         self.driver.close()
 
-    def create_entity(self, name, label):
+    def create_entity(self, name, label, synonyms=None):
         name = name.replace("'", "")
         with self.driver.session() as session:
-            result = session.write_transaction(self._create_and_return_entity, name, label)
+            result = session.write_transaction(self._create_and_return_entity, name, label, synonyms)
 
     @staticmethod
-    def _create_and_return_entity(tx, name, label):
-        result = tx.run("CREATE (a: %s {name: '%s' }) RETURN a.name AS name, a.label AS label" % (label, name))
-        
+    def _create_and_return_entity(tx, name, label, synonyms):
+        if synonyms is None:
+            result = tx.run("CREATE (a: %s {name: '%s'}) RETURN a.name AS name, labels(a) AS label" % (label, name))
+        else:
+            '['+', '.join(synonyms)+']'
+            result = tx.run("CREATE (a: %s {name: '%s', synonyms: %s}) RETURN a.name AS name, a.synonym AS synonym labels(a) AS label" % (label, name, synonyms))
         return result.single()
 
     def create_relationship(self, subject, subjectLabel, relation, hierarchy_class, word_gap, object, objectLabel):
