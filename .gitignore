@@ -128,7 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-<<<<<<< HEAD
 .dbcfg.ini
 .DS_Store
 dbcfg.ini
@@ -136,8 +135,7 @@ dbcfg.ini
 /.idea
 WordGrabbing/errorlinks.txt
 kgl_venv/
-=======
+
 # login credentials for database
 config.py
 
->>>>>>> b82cd5a... .gitignore: Added config.py
