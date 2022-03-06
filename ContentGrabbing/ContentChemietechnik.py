@@ -1,5 +1,6 @@
 import sys
 import time
+sys.path.append('../')
 
 from Database import Database
 from urllib.parse import urlparse
@@ -37,4 +38,4 @@ def run():
 
 
 def __init__():
-    pass
+    run()
