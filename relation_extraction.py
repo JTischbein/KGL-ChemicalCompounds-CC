@@ -25,6 +25,15 @@ cur.execute("SELECT DISTINCT synonym FROM locations")
 locations = cur.fetchall()
 locations = [location[0] for location in locations]
 
+cur.execute("SELECT ch.chemical_formula, ch.tag, array_agg(DISTINCT ch2.synonym) FROM chemicals ch LEFT JOIN chemicals ch2 ON ch.chemical_formula = ch2.chemical_formula GROUP BY ch.chemical_formula, ch.tag")
+chemical_table = cur.fetchall()
+chemical_formulas = [formula[0] for formula in chemical_table]
+chemical_synonyms = [synonym[2] for synonym in chemical_table]
+chemical_dictionary = {}
+for synonyms, formula in zip(chemical_synonyms, chemical_formulas):
+    for synonym in synonyms:
+        chemical_dictionary[synonym] = formula
+
 # creates a noun list for each sentence
 def get_nouns(sentences):
     nouns = []
@@ -80,7 +89,7 @@ def closest_entity(article_companies, article_chemicals, article_locations):
             if abs(company[1] - chemical[1]) < chemical_distance:
                 closest_chemical = chemical
                 chemical_distance = abs(company[1] - chemical[1])
-        cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], closest_chemical[0], 3, chemical_distance, article[1]))
+        cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[closest_chemical[0]], 3, chemical_distance, article[1]))
         article_chemicals.remove(closest_chemical)
     # Then we have to find the closest location to the company
     for company in article_companies:
@@ -130,11 +139,11 @@ for article_count, article in enumerate(tqdm(articles)):
             for token in nlp(sentence):
                 # class 1: chemical is object of company or vice versa
                 if token.dep_ in deps and token.text in article_compounds:
-                    cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], token.text, 1, 0, article[1]))
+                    cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[token.text], 1, 0, article[1]))
                     class_1 = True
             # class 2: no specific relationship, but appear in the same sentence
             if not class_1:
-                cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], get_chemical(article_chemicals, sentence_index), 2,  0,  article[1]))
+                cur.execute("INSERT INTO company_chemical (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[get_chemical(article_chemicals)], sentence_index), 2,  0,  article[1])
             remove_chemical(article_chemicals, sentence_index)
 
         if sentence_index in location_indices:
