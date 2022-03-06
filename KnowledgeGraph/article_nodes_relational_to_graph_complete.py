@@ -33,7 +33,7 @@ if __name__ == "__main__":
     cur.execute("SELECT DISTINCT * FROM articles")
     articles = cur.fetchall()
     articleID = 0 # eigentlich Abfrage der derzeit höchsten ArticleID
-    print(len(articles))
+
     for article in articles:
         graph.write(articleID, article[0], article[1], article[2], article[3])
         articleID += 1
