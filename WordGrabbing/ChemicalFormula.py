@@ -7,8 +7,10 @@ from lodstorage.sparql import SPARQL
 
 from Database import Database
 
+# Connect to database
 db = Database('../dbcfg.ini').connect()
 
+# Get chemical formula of chemical tag
 def grab_formula(tag):
     substanceQueryStr = """
         SELECT DISTINCT ?entry
@@ -26,11 +28,10 @@ def grab_formula(tag):
                         name="ChemicalFormulas",
                         lang="sparql")
         queryResLoD = endpoint.queryAsListOfDicts(query.query)
-        entries = [record for record in queryResLoD]
 
         return queryResLoD[0]['entry']
     except:
-        print("Fehler:", tag)
+        print("Error, element", tag, "has no chemical formula")
         return None
 
 
@@ -39,11 +40,13 @@ def iteration(line):
     synonym = line[1]
     tag = line[2]
 
+    # Get chemical formula
     chemical_formula = grab_formula(tag)
     
+    # Save chemical formula in DB
     if chemical_formula:
         db.execute('UPDATE chemicals SET chemical_formula = %s WHERE link = %s AND synonym = %s AND tag = %s', (chemical_formula, link, synonym, tag))
     
 
-
+# Run iteration for every chemical
 db.execute_and_run('SELECT * FROM chemicals', callback=iteration, progress_bar=True)

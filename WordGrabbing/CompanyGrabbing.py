@@ -4,20 +4,21 @@ import spacy
 from Database import Database
 from urllib.parse import urlparse
 
-category = 'companies'
-
+# Connect to DB
 db = Database('../dbcfg.ini').connect()
 
 if db is None:
     print("Connecting to DB failed. Quitting...")
     sys.exit()
 
+# Get all company names
 company_names = [name[0] for name in db.execute('SELECT name FROM company_wikidata')]
 
-
+# Load spacy 
 nlp_de = spacy.load('de_dep_news_trf')
 
 nlp_en = spacy.load('en_core_web_trf')
+
 
 all_insertions = []
 
@@ -37,14 +38,6 @@ def save_error(link, word="", error=""):
     f.close()
 
 
-def query(word):
-    entries = db.execute('SELECT word FROM company_dict WHERE name=', attributes=(word,))
-
-    entries = [x[0] for x in entries]
-
-    return entries
-
-
 def check_for_any(text):
     res = []
     for comp in company_names:
@@ -56,7 +49,7 @@ def check_for_any(text):
 
 def process_article(line):
 
-    # Get data and check if text existing
+    # Get data and check if text exists
     link = line[0]
     text = line[1]
     language = line[3]
@@ -91,7 +84,10 @@ def process_article(line):
         all_insertions.append((link, comp))
 
     
-
+# Run process_article for every article
 db.execute_and_run('SELECT * FROM articles', attributes=(), callback=process_article, progress_bar=True)
 
 print(len(all_insertions))
+
+for ins in all_insertions:
+    db.execute('INSERT INTO companies (link, synonym, tag) VALUES (%s, %s, %s)', attributes=(ins[0], ins[1]))
