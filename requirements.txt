@@ -1,0 +1,16 @@
+spacy
+nltk
+psycopg2
+tqdm
+configparser
+pylodstorage
+neo4j
+matplotlib
+geotext
+selenium
+beautifulsoup4
+requests
+fasttext
+langid
+langdetect
+newspaper3k
