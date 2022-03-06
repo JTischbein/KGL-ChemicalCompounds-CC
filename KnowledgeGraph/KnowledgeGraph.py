@@ -21,19 +21,21 @@ class KnowledgeGraph:
         if synonyms is None:
             result = tx.run("CREATE (a: %s {name: '%s'}) RETURN a.name AS name, labels(a) AS label" % (label, name))
         else:
-            '['+', '.join(synonyms)+']'
+            synonyms = '['+', '.join(synonyms)+']'
             result = tx.run("CREATE (a: %s {name: '%s', synonyms: %s}) RETURN a.name AS name, a.synonym AS synonym labels(a) AS label" % (label, name, synonyms))
         return result.single()
 
-    def create_relationship(self, subject, subjectLabel, relation, hierarchy_class, word_gap, object, objectLabel):
+    def create_relationship(self, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap):
         subject = subject.replace("'", "")
+        hierarchy_class = '['+', '.join(hierarchy_class)+']'
+        hierarchy_count = '['+', '.join(hierarchy_count)+']'
         with self.driver.session() as session:
             result = session.write_transaction(
-                self._create_and_return_relationship, subject, subjectLabel, relation, hierarchy_class, word_gap, object, objectLabel)
+                self._create_and_return_relationship, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap)
 
     @staticmethod
-    def _create_and_return_relationship(tx, subject, subjectLabel, relation, hierarchy_class, word_gap, object, objectLabel):
-        result = tx.run("MATCH (a:%s {name: '%s'}), (b:%s {name: '%s'}) CREATE (a)-[r:%s {hierarchy_level: %d, word_gap: %d}]->(b) RETURN a, b" % (subjectLabel, subject, objectLabel, object, relation, hierarchy_class, word_gap))
+    def _create_and_return_relationship(tx, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap):
+        result = tx.run("MATCH (a:%s {name: '%s'}), (b:%s {name: '%s'}) CREATE (a)-[r:%s {hierarchy_level: %s, hierarchy_count: %s, word_gap: %d}]->(b) RETURN a, b" % (subjectLabel, subject, objectLabel, object, relation, hierarchy_class, hierarchy_count, word_gap))
 
         return [{"a": row["a"]["name"], "b": row["b"]["name"]} for row in result]
 
