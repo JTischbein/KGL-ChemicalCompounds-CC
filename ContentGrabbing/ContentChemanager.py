@@ -7,16 +7,15 @@ from selenium.webdriver.chrome.service import Service
 
 from tqdm import tqdm
 
-import psycopg2
+import sys
+sys.path.append('../')
+from Database import Database 
 
-import config
+db = Database('../dbcfg.ini').connect()
 
-conn = psycopg2.connect(host=config.host, port=config.port, dbname=config.dbname, user=config.user, password=config.password)
 
-cur = conn.cursor()
 # get all links from chemamager which are actually working
-cur.execute("SELECT link FROM articles WHERE link LIKE 'https://www.chemanager-online.com/%' AND release_date IS NOT NULL")
-data = cur.fetchall()
+data = db.execute("SELECT link FROM articles WHERE link LIKE 'https://www.chemanager-online.com/%' AND release_date IS NOT NULL")
 
 CHROMEDRIVER_PATH = config.chrome_driver
 s = Service(CHROMEDRIVER_PATH)
@@ -29,11 +28,7 @@ for link in tqdm(data):
     # Article library does not work here properly. We have to extract the text from the div manuall
     div = driver.find_element(By.XPATH, "//div[@class='paragraph paragraph--type--text paragraph--view-mode--default']")
     text = div.text
-    cur.execute("UPDATE articles SET content = %s WHERE link = %s", (text, link))
-    if i % 100 == 0: conn.commit()
+    db.execute("UPDATE articles SET content = %s WHERE link = %s", (text, link))
 
-conn.commit()
-cur.close()
-conn.close()
 
 driver.quit()

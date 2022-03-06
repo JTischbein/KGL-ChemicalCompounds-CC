@@ -3,14 +3,11 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait as wait
 from selenium.webdriver.support import expected_conditions as ec
-import psycopg2
 
-HOST = ""
-PORT = ""
-DBNAME = ""
-USER = ""
-PASSWORD = ""
-PROFILE = ""
+import sys
+sys.path.append('../')
+from Database import Database 
+
 
 class ICIS_content:
 
@@ -52,18 +49,11 @@ class ICIS_content:
             save_in_db([url, "".join("".join(content.text.replace("  ", "").split("\\n")).split("\\t"))])
 
     def save_in_db(content):
-        conn = psycopg2.connect(host=HOST, port=PORT, dbname=DBNAME, user=USER,
-                                password=PASSWORD)
-
-        cur = conn.cursor()
+        db = Database('../dbcfg.ini').connect()
 
         print(content)
-        cur.execute("INSERT INTO articles (link, content) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+        db.execute("INSERT INTO articles (link, content) VALUES (%s, %s) ON CONFLICT DO NOTHING",
                         (content[0], content[1]))
 
-        conn.commit()
-
-        cur.close()
-        conn.close()
 
 ICIS_content()
