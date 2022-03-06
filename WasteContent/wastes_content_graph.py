@@ -31,7 +31,7 @@ def get_company_wastes(company_name, file):
                         found = True;
                         where = row[16]
                     if found: wastes.append(
-                        (name, where, int(row[0]), row[33], float(row[102]), float(row[110]) + float(row[111])))
+                        (name, where, int(row[0]), row[33], float(row[102]), float(row[110]) + float(row[111]), row[42]))
                 except IndexError:
                     continue
         print(len(wastes))
@@ -74,8 +74,9 @@ def insert_graph_data(driver, data_list):
         if int(data[4]) or int(data[5]):
             with driver.session() as session:
                 session.run(
-                    "CREATE (a:Waste {wasteID: '%d', year: '%d', chemical: '%s', total_releases_in_pounds:'%d', total_recycling_in_pounds: '%d'})" % (
-                    wasteID, data[2], data[3], data[4], data[5]))
+                    "CREATE (a:Waste {wasteID: '%d', year: '%d', chemical: '%s', total_releases_in_pounds:'%d', total_recycling_in_pounds: '%d', carcinogen: '%s'})" % (
+                    wasteID, data[2], data[3], data[4], data[5], data[6]))
+                
                 session.run(
                     "MATCH (a:Waste {wasteID: '%d'}), (b:Company {name: '%s'}) CREATE (b)-[r:RESPONSIBLE_FOR]->(a)" % (
                     wasteID, data[0]))
