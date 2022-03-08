@@ -1,17 +1,22 @@
 import psycopg2
 import matplotlib.pyplot as plt
 import os
+from neo4j import GraphDatabase
 
 import config
+import graph_config
 
 try:
     os.mkdir("plots")
-    print("Directory " , "plots" ,  " Created ") 
+    print("Directory " , "plots" ,  " Created ")
 except FileExistsError:
     print("Directory " , "plots" ,  " already exists")
 
-conn = psycopg2.connect(host=config.host, port=config.port, dbname=config.dbname, user=config.user, password=config.password)
+driver = GraphDatabase.driver(HOST, auth=(USER, PASSWORD))
 
+
+conn = psycopg2.connect(host=HOST, port=PORT, dbname=DBNAME, user=USER,
+                            password=PASSWORD)
 cur = conn.cursor()
 
 cur.execute("""
@@ -19,19 +24,19 @@ cur.execute("""
         FROM articles
         WHERE (link LIKE '%ihsmarkit.com%') OR (link LIKE '%icis.com%') OR (link LIKE '%chemietechnik.de%') OR (link LIKE '%chemanager-online.com%')
         GROUP BY CASE
-            WHEN link LIKE '%ihsmarkit.com%' THEN 'ihsmarkit.com'
-            WHEN link LIKE '%icis.com%' THEN 'icis.com'
             WHEN link LIKE '%chemietechnik.de%' THEN 'chemietechnik.de'
             WHEN link LIKE '%chemanager-online.com%' THEN 'chemanager-online.com'
+            WHEN link LIKE '%ihsmarkit.com%' THEN 'ihsmarkit.com'
+            WHEN link LIKE '%icis.com%' THEN 'icis.com'
         END
-        """)       
+        """)
 
 article_distribution = cur.fetchall()
 article_distribution = [x[0] for x in article_distribution]
 print(article_distribution)
 
 plt.figure()
-plt.pie(article_distribution, labels = ['ihsmarkit.com', 'icis.com', 'chemietechnik.de', 'chemanager-online.com'], autopct='%1.1f%%')
+plt.pie(article_distribution, labels = ['chemietechnik.de', 'chemanager-online.com', 'ihsmarkit.com', 'icis.com'], autopct='%1.1f%%')
 plt.title("Article Distribution")
 plt.savefig("plots/article_distribution.png")
 
@@ -92,6 +97,31 @@ plt.pie(company_location_count, labels = company_location_name, autopct='%1.1f%%
 plt.title("company->location")
 
 plt.savefig("plots/hierarchies.png")
+
+with driver.session() as session:
+    carcinogen_waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'YES' RETURN SUM(toInteger(n.total_releases_in_pounds)) AS sum, n.year AS year")
+    carcinogen_waste = [[int(row["sum"]), row["year"]] for row in carcinogen_waste]
+    carcinogen_waste_year = [row[1] for row in carcinogen_waste]
+    carcinogen_waste_sum = [row[0] for row in carcinogen_waste]
+
+    plt.figure()
+    plt.bar(carcinogen_waste_year, carcinogen_waste_sum)
+    plt.title("Carcinogenic Waste Year Distribution")
+    plt.ylabel("Waste in pounds")
+    plt.savefig("plots/carcinogenic_waste_year_distribution.png")
+
+
+with driver.session() as session:
+    waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'NO' RETURN SUM(toInteger(n.total_releases_in_pounds)) AS sum, n.year AS year")
+    waste = [[int(row["sum"]), row["year"]] for row in waste]
+    waste_year = [row[1] for row in waste]
+    waste_sum = [row[0] for row in waste]
+
+    plt.figure()
+    plt.bar(waste_year, waste_sum)
+    plt.title("Non-Carcinogenic Waste Year Distribution")
+    plt.ylabel("Waste in pounds")
+    plt.savefig("plots/non_carcinogenic_waste_year_distribution.png")
 
 
 cur.close()
