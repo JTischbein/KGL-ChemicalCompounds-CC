@@ -1,7 +1,12 @@
-from Database import Database
+
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import sys
+sys.path.append('../')
+from Database import Database 
+
+db = Database('../dbcfg.ini').connect()
 
 
 def get_links_from_pages(URL):
@@ -47,12 +52,13 @@ def run():
     # Get newslistings from file
     with open('ChemietechnikURLs.txt') as f:
         lines = f.readlines()
+    
+    print(lines)
 
     urls = [l.replace("\n", "") for l in lines]
     print("URLs:", lines)
 
-    # Connect to database
-    db = Database('dbcfg.ini').connect()
+
 
     article_links = []
 
@@ -72,3 +78,5 @@ def run():
 
 
     print("Found", count, "links and saved them in DB.")
+
+run()

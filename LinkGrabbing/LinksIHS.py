@@ -1,9 +1,13 @@
-import psycopg2
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from datetime import date, datetime
 import calendar
+import sys
+sys.path.append('../')
+from Database import Database 
+
+
 
 HOST = ""
 PORT = ""
@@ -61,19 +65,12 @@ class URL_list:
         save_in_db(links)
 
     def save_in_db(links):
-        conn = psycopg2.connect(host=HOST, port=PORT, dbname=DBNAME, user=USER,
-                                password=PASSWORD)
-
-        cur = conn.cursor()
+        db = Database('../dbcfg.ini').connect()
 
         for link in links:
             print(link)
-            cur.execute("INSERT INTO articles (link, release_date) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+            db.execute("INSERT INTO articles (link, release_date) VALUES (%s, %s) ON CONFLICT DO NOTHING",
                         (link[0], link[1]))
 
-        conn.commit()
-
-        cur.close()
-        conn.close()
 
 URL_list()

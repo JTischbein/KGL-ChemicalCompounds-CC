@@ -7,8 +7,9 @@ from selenium.webdriver.chrome.service import Service
 
 from tqdm import tqdm
 from datetime import datetime
-
-import psycopg2
+import sys
+sys.path.append('../')
+from Database import Database 
 
 import config
 
@@ -34,19 +35,14 @@ def get_datetime():
     except Exception:
         return None
     
+
 # function for saving our webcrawled results in a postgresql database
 def save_in_db(entries):
-    conn = psycopg2.connect(host=config.host, port=config.port, dbname=config.dbname, user=config.user, password=config.password)
-
-    cur = conn.cursor()
+    db = Database('../dbcfg.ini').connect()
 
     for entry in entries:
-        cur.execute("INSERT INTO articles (link, release_date) VALUES (%s, %s) ON CONFLICT DO NOTHING", (entry[0], entry[1]))
+        db.execute("INSERT INTO articles (link, release_date) VALUES (%s, %s) ON CONFLICT DO NOTHING", (entry[0], entry[1]))
 
-    conn.commit()
-
-    cur.close()
-    conn.close()
 
 CHROMEDRIVER_PATH = config.chrome_driver
 s = Service(CHROMEDRIVER_PATH)
