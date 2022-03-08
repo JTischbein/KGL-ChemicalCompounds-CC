@@ -62,7 +62,6 @@ class KnowledgeGraph:
     def create_entity(self, name, label, synonyms=None):
         """
         Creates an entity with a given name and label.
-        Calls the _create_and_return_entity method which returns the created entity.
         ...
 
         Parameters
@@ -76,11 +75,12 @@ class KnowledgeGraph:
 
         Returns
         -------
-        None
+        name and label of the entity
         """
         name = name.replace("'", "")
         with self.driver.session() as session:
             result = session.write_transaction(self._create_and_return_entity, name, label, synonyms)
+            return result
 
     @staticmethod
     def _create_and_return_entity(tx, name, label, synonyms):
@@ -94,7 +94,6 @@ class KnowledgeGraph:
     def create_relationship(self, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap):
         """"
         Creates an edge between two presaved entities. The edge is built upon the found the predetermined relationship between the two entities.
-        Calls the _create_and_return_relationship method which returns the nodes of the created relationship.
 
         Parameters
         ----------
@@ -117,7 +116,7 @@ class KnowledgeGraph:
 
         Returns
         -------
-        None
+        names of the linked entities
         """
         subject = subject.replace("'", "")
         hierarchy_class = '['+', '.join(hierarchy_class)+']'
@@ -125,6 +124,7 @@ class KnowledgeGraph:
         with self.driver.session() as session:
             result = session.write_transaction(
                 self._create_and_return_relationship, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap)
+            return result
 
     @staticmethod
     def _create_and_return_relationship(tx, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap):
@@ -135,7 +135,6 @@ class KnowledgeGraph:
     def find_entity(self, name, label):
         """
         Finds an entity with a given name and label.
-        Calls the _find_entity method which returns the name of the found entity.
         ...
 
         Parameters
@@ -147,10 +146,11 @@ class KnowledgeGraph:
 
         Returns
         -------
-        None
+        name of the found entity. If no entity is found, returns None
         """
         with self.driver.session() as session:
             result = session.read_transaction(self._find_and_return_entity, name, label)
+            return result
 
     @staticmethod
     def _find_and_return_entity(tx, name, label):
