@@ -12,7 +12,7 @@ if db is None:
     sys.exit()
 
 # Get all company names
-company_names = [name[0] for name in db.execute('SELECT name FROM company_wikidata')]
+company_names = [name[0] for name in db.execute('SELECT name FROM companies_wikidata')]
 
 # Load spacy 
 nlp_de = spacy.load('de_dep_news_trf')
@@ -48,13 +48,13 @@ def check_for_any(text):
 
 
 def process_article(line):
-
     # Get data and check if text exists
     link = line[0]
     text = line[1]
     language = line[3]
+
     if text == "" or text is None:
-        print("None")
+        print("None", link)
         return
 
     # Remove all "
@@ -68,7 +68,6 @@ def process_article(line):
 
     # Process Text
     doc = nlp(text)
-    all_nouns = [chunk.text for chunk in doc.noun_chunks]
 
     # Check if there is any Company in the text
     try:
@@ -87,7 +86,7 @@ def process_article(line):
 # Run process_article for every article
 db.execute_and_run('SELECT * FROM articles', attributes=(), callback=process_article, progress_bar=True)
 
-print(len(all_insertions))
+print("Found:", len(all_insertions))
 
 for ins in all_insertions:
     db.execute('INSERT INTO companies (link, synonym, tag) VALUES (%s, %s, %s)', attributes=(ins[0], ins[1]))
