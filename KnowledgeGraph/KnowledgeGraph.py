@@ -3,15 +3,78 @@ import logging
 from neo4j.exceptions import ServiceUnavailable
 
 class KnowledgeGraph:
-
+    """
+    Class for providing an interface to the Neo4j database
+    ...
+    
+    Attributes
+    ----------
+    driver : neo4j.v1.GraphDatabase.driver
+        The driver for the Neo4j database   
+    
+    Methods
+    -------
+    init : Initialize the driver
+    close : Close the driver
+    create_entity : Create an entity
+    create_relationship : Create a relationship
+    find_entity : Find an entity
+    delete : Delete all entities
+    """
     def __init__(self, uri, user, password):
+        """
+        Initialize the driver
+        ...
+
+        Parameters
+        ----------
+        uri : str
+            The URI of the Neo4j database
+        user : str
+            User log in credentials
+        password : str
+            password log in credentials
+        
+        Returns
+        -------
+        None
+        """
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
     def close(self):
-        # Don't forget to close the driver connection when you are finished with it
+        """"
+        Closes the driver connection. Don't forget to call this method when you are finished with it.
+        ...
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self.driver.close()
 
     def create_entity(self, name, label, synonyms=None):
+        """
+        Creates an entity with a given name and label.
+        Calls the _create_and_return_entity method which returns the created entity.
+        ...
+
+        Parameters
+        ----------
+        name : str
+            name of the entity
+        label : str
+            label of the entity
+        synonyms : list
+            optional argument. We mainly use it here to store the different mentions of the same chemical compound
+
+        Returns
+        -------
+        None
+        """
         name = name.replace("'", "")
         with self.driver.session() as session:
             result = session.write_transaction(self._create_and_return_entity, name, label, synonyms)
@@ -26,6 +89,33 @@ class KnowledgeGraph:
         return result.single()
 
     def create_relationship(self, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap):
+        """"
+        Creates an edge between two presaved entities. The edge is built upon the found the predetermined relationship between the two entities.
+        Calls the _create_and_return_relationship method which returns the nodes of the created relationship.
+
+        Parameters
+        ----------
+        subject : str
+            name of the subject (outgoing edge) entity
+        subjectLabel : str
+            label of the subject entity
+        relation : str
+            label of the relationship
+        object : str
+            name of the object (incoming edge) entity
+        objectLabel : str
+            label of the object entity
+        hierarchy_class : list
+            list of hierarchy classes found
+        hierarchy_count : list
+            number of occurences for each hierarchy class
+        word_gap : int
+            number of sentences between the third class relations
+
+        Returns
+        -------
+        None
+        """
         subject = subject.replace("'", "")
         hierarchy_class = '['+', '.join(hierarchy_class)+']'
         hierarchy_count = '['+', '.join(hierarchy_count)+']'
@@ -40,6 +130,22 @@ class KnowledgeGraph:
         return [{"a": row["a"]["name"], "b": row["b"]["name"]} for row in result]
 
     def find_entity(self, name, label):
+        """
+        Finds an entity with a given name and label.
+        Calls the _find_entity method which returns the name of the found entity.
+        ...
+
+        Parameters
+        ----------
+        name : str
+            name of the entity
+        label : str
+            label of the entity
+
+        Returns
+        -------
+        None
+        """
         with self.driver.session() as session:
             result = session.read_transaction(self._find_and_return_entity, name, label)
 
@@ -50,9 +156,23 @@ class KnowledgeGraph:
         return [row["name"] for row in result]
 
     def delete(self):
+        """
+        Deletes all entities and thus clears the entire graph. Use with caution!
+        ...
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         with self.driver.session() as session:
             result = session.write_transaction(self._delete_entities)
     
     @staticmethod
     def _delete_entities(tx):
         tx.run("MATCH (n) DETACH DELETE n")
+
+print(help(KnowledgeGraph))
