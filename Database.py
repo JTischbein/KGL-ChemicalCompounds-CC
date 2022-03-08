@@ -16,8 +16,6 @@ class Database:
         self.connection = None
         self.cursor = None
     
-    def __del__(self):
-        self.disconnect()
 
     def connect(self):
         if self.connection is not None:
