@@ -1,5 +1,4 @@
 from configparser import ConfigParser
-from sqlite3 import ProgrammingError
 import psycopg2
 from tqdm import tqdm
 
@@ -16,6 +15,9 @@ class Database:
 
         self.connection = None
         self.cursor = None
+    
+    def __del__(self):
+        self.disconnect()
 
     def connect(self):
         if self.connection is not None:
@@ -53,8 +55,8 @@ class Database:
                         callback(l)
 
     def add_article(self, link, article="", release_date=""):
-        sql = "INSERT INTO articles (link, content, release_date) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING"
-        self.execute(sql, (link, article, release_date), fetch=False)
+        sql = "INSERT INTO articles (link, release_date) VALUES (%s, %s) ON CONFLICT DO NOTHING"
+        self.execute(sql, (link, release_date), fetch=False)
 
     def update_article(self, link, content=None, release_date=None):
         if content is None and release_date is None:
@@ -68,7 +70,7 @@ class Database:
                          (content, release_date, link))
 
     def add_word(self, topic, link, synonym, tag):
-        self.execute('INSERT INTO ' + topic + ' (link, synonym, tag) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING',
+        self.execute('INSERT INTO ' + topic + ' (link, synonym, tag) VALUES (%s, %s, %s)',
                      (link, synonym, tag), fetch=False)
 
     def set_language(self, link, language):
