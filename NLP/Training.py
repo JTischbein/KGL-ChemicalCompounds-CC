@@ -4,7 +4,7 @@ import sys
 sys.path.append('../')
 from Database import Database 
 
-db = Database('../dbcfg.ini').connect()
+db = Database('dbcfg.ini').connect()
 
 TRAIN_DATA = []
 
@@ -28,17 +28,17 @@ def run(line):
         (line[2], {"entities": entities})
     )
 
-db.execute_and_run('SELECT * FROM companies_training_data INNER JOIN company_wikidata cw on companies_training_data.synonym = cw.name;', attributes=(), callback=run, progress_bar=True)
+db.execute_and_run('SELECT * FROM (SELECT * FROM companies_training_data INNER JOIN articles ON companies_training_data.link = articles.link WHERE language = %s) ctd INNER JOIN company_wikidata cw on ctd.synonym = cw.name;', attributes=("de",), callback=run, progress_bar=True)
 
 
-print(TRAIN_DATA)
+print(TRAIN_DATA[0])
 
 ############################################
 ############################################
 ############################################
 
 import spacy
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("de_core_news_sm")
 
 TRAIN_DATA_EXAMPLE = [
               ("Walmart is a leading e-commerce company", {"entities": [(0, 7, "ORG")]}),
