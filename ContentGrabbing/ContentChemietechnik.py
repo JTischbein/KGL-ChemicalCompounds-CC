@@ -11,7 +11,7 @@ def get_content(l, db):
     link = l[0]
     if urlparse(link).netloc != "www.chemietechnik.de":
         return
-    print(link)
+
     done = 0
 
     while done < 10:
@@ -29,13 +29,12 @@ def get_content(l, db):
 
 
 def run():
-    db = Database('dbcfg.ini').connect()
+    db = Database('../dbcfg.ini').connect()
 
     if db is None:
+        print("DB not connected")
         sys.exit()
 
-    db.execute_and_run("SELECT link FROM articles", attributes=[], callback=lambda l: get_content(l, db))
+    db.execute_and_run("SELECT link FROM articles", attributes=(), callback=lambda l: get_content(l, db), progress_bar=True)
 
-
-def __init__():
-    run()
+run()
