@@ -19,7 +19,10 @@ class KnowledgeGraph:
     create_entity : Create an entity
     create_relationship : Create a relationship
     find_entity : Find an entity
+    delete_entity : Delete an entity
+    delete_relationship : Delete a relationship between two entities
     delete : Delete all entities
+    custom_query : Execute a custom query
     """
     def __init__(self, uri, user, password):
         """
@@ -155,7 +158,59 @@ class KnowledgeGraph:
 
         return [row["name"] for row in result]
 
-    def delete(self):
+    def delete_entity(self, name, label):
+        """
+        Deletes an entity with a given name and label.
+        ...
+
+        Parameters
+        ----------
+        name : str
+            name of the entity
+        label : str
+            label of the entity
+
+        Returns
+        -------
+        None
+        """
+        with self.driver.session() as session:
+            result = session.write_transaction(self._delete_entity, name, label)
+
+    @staticmethod
+    def _delete_entity(tx, name, label):
+        result = tx.run("MATCH (a:%s) WHERE a.name = %s DELETE a" % (name, label))
+
+    def delete_relationship(self, subject, subjectLabel, relation, object, objectLabel):
+        """
+        Deletes an edge between two presaved entities. The edge is built upon the found the predetermined relationship between the two entities.
+        ...
+
+        Parameters
+        ----------
+        subject : str
+            name of the subject (outgoing edge) entity
+        subjectLabel : str
+            label of the subject entity
+        relation : str
+            label of the relationship
+        object : str
+            name of the object (incoming edge) entity
+        objectLabel : str
+            label of the object entity
+
+        Returns
+        -------
+        list of subject and object 
+        """
+        with self.driver.session() as session:
+            result = session.write_transaction(self._delete_relationship, subject, subjectLabel, relation, object, objectLabel)
+
+    @staticmethod
+    def _delete_relationship(tx, subject, subjectLabel, relation, object, objectLabel):
+        result = tx.run("MATCH (a:%s)-[r:%s]->(b:%s) WHERE a.name = %s AND b.name = %s DELETE r" % (subjectLabel, relation, objectLabel, subject, object))
+
+    def delete_all(self):
         """
         Deletes all entities and thus clears the entire graph. Use with caution!
         ...
@@ -169,10 +224,32 @@ class KnowledgeGraph:
         None
         """
         with self.driver.session() as session:
-            result = session.write_transaction(self._delete_entities)
+            result = session.write_transaction(self._delete_all_entities)
     
     @staticmethod
-    def _delete_entities(tx):
+    def _delete_all_entities(tx):
         tx.run("MATCH (n) DETACH DELETE n")
 
-print(help(KnowledgeGraph))
+    def custom_query(self, query):
+        """
+        Executes a custom query.
+        ...
+
+        Parameters
+        ----------
+        query : str
+            query to be executed
+
+        Returns
+        -------
+        Whatever is defined in the return statement of the query
+        """
+        with self.driver.session() as session:
+            result = session.write_transaction(self._custom_query, query)
+            return result
+
+    @staticmethod
+    def _custom_query(tx, query):
+        result = tx.run(query)
+
+        return [row for row in result]
