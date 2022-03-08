@@ -75,6 +75,4 @@ class Database:
         self.execute("UPDATE articles SET language = %s WHERE link = %s", (language, link))
 
     def add_word_to_dict(self, table_name, word, tag, synonym="", synonym_id=-1):
-        rows = self.execute('SELECT * FROM ' + table_name + ' WHERE name = %s', attributes=(word,))
-        if len(rows) > 0: return None
-        self.execute('INSERT INTO ' + table_name + ' (name) VALUES (%s)', (word,))
+        self.execute('INSERT INTO ' + table_name + ' (name, tag) VALUES (%s, %s) ON CONFLICT DO NOTHING', (word, tag))
