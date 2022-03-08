@@ -30,7 +30,5 @@ db = Database('../dbcfg.ini').connect()
 
 for tag, word in entries:
     tag = tag.split("/")[-1]
-    print(tag)
-    db.execute('UPDATE company_wikidata SET tag = %s WHERE "name" = %s', attributes=(tag, word))
-    #db.add_word_to_dict('company_wikidata', word, tag)
+    db.add_word_to_dict('companies_wikidata', word, tag)
 

@@ -5,27 +5,26 @@ from Database import Database
 from lodstorage.sparql import SPARQL
 from urllib.parse import urlparse
 
-category = 'companies'
+category = 'chemicals'
 
 substanceQueryStr = """
-    SELECT DISTINCT ?entry ?entry2
+    SELECT DISTINCT ?substance
     WHERE { 
-      VALUES ?entryLabel {%s}
-      {?entry wdt:P31 wd:Q83405.} UNION
-      {?sup wdt:P279 wd:Q83405.
-      ?entry wdt:P31 ?sup.}
-      ?entry rdfs:label|skos:altLabel ?entryLabel.
-      OPTIONAL {?entry wdt:P1542 ?entry2.
-      ?entry2 wdt:P31 wd:Q58734.}
-      FILTER(lang(?entryLabel) = "%s").
+    VALUES ?substanceLabel {%s}
+    ?substance wdt:P31 wd:Q11173;
+                rdfs:label|skos:altLabel ?substanceLabel.
     }
     """
-
 
 
 endpoint = SPARQL("https://query.wikidata.org/sparql")
 
 db = Database('../dbcfg.ini').connect()
+
+# Load spacy 
+nlp_de = spacy.load('de_dep_news_trf')
+
+nlp_en = spacy.load('en_core_web_trf')
 
 
 def save_error(link, word="", error=""):
@@ -66,18 +65,23 @@ def check_for_any(nouns, language):
 
 
 def process_article(line):
+    # Get link, text and language
     link = line[0]
     text = line[1]
     language = line[3]
+
+    # If text is empty, skip article
     if text == "" or text is None:
         return
 
+    # Remove "
     text = text.replace('"', '')
 
+    # Load correct model
     if language == "de":
-        nlp = spacy.load('de_core_news_sm')
+        nlp = nlp_de
     else:
-        nlp = spacy.load('en_core_web_trf')
+        nlp = nlp_en
 
     doc = nlp(text)
     nl = "\n"
@@ -97,8 +101,7 @@ def process_article(line):
             entries = query(word, language)
 
             if len(entries) > 0:
-                x = [urlparse(sub).path.split("/") for sub in entries]
-                entity_tags = [sub[len(sub) - 1] for sub in x]
+                entity_tags = [urlparse(sub).path.split("/")[-1] for sub in entries]
                 synonym = word.split('"')[1]
                 for tag in entity_tags:
                     db.add_word(category, link, synonym, tag)
