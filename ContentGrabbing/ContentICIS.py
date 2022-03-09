@@ -49,7 +49,7 @@ class ICIS_content:
             save_in_db([url, "".join("".join(content.text.replace("  ", "").split("\\n")).split("\\t"))])
 
     def save_in_db(content):
-        db = Database('../dbcfg.ini').connect()
+        db = Database('../config.ini').connect()
 
         print(content)
         db.execute("INSERT INTO articles (link, content) VALUES (%s, %s) ON CONFLICT DO NOTHING",

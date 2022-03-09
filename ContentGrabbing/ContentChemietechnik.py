@@ -29,7 +29,7 @@ def get_content(l, db):
 
 
 def run():
-    db = Database('../dbcfg.ini').connect()
+    db = Database('../config.ini').connect()
 
     if db is None:
         print("DB not connected")

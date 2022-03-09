@@ -5,7 +5,7 @@ import sys
 sys.path.append('../')
 from Database import Database 
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 
 def get_links_from_pages(URL):

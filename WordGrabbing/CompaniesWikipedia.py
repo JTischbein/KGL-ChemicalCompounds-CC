@@ -26,7 +26,7 @@ for row in rows:
 print(companies)
 print(len(companies))
 
-db = Database('./dbcfg.ini').connect()
+db = Database('./config.ini').connect()
 
 for word in companies:
     db.add_word_to_dict('company_dict', word)

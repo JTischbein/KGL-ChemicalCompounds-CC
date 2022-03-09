@@ -5,7 +5,7 @@ from Database import Database
 from urllib.parse import urlparse
 
 # Connect to DB
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 if db is None:
     print("Connecting to DB failed. Quitting...")

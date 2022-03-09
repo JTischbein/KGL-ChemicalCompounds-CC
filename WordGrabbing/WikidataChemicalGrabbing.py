@@ -19,7 +19,7 @@ substanceQueryStr = """
 
 endpoint = SPARQL("https://query.wikidata.org/sparql")
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 # Load spacy 
 nlp_de = spacy.load('de_dep_news_trf')

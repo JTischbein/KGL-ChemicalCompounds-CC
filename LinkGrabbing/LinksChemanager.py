@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -11,7 +12,6 @@ import sys
 sys.path.append('../')
 from Database import Database 
 
-import config
 
 # get all article links of a single news page
 def get_links(elements):
@@ -38,13 +38,17 @@ def get_datetime():
 
 # function for saving our webcrawled results in a postgresql database
 def save_in_db(entries):
-    db = Database('../dbcfg.ini').connect()
+    db = Database('../config.ini').connect()
 
     for entry in entries:
         db.execute("INSERT INTO articles (link, release_date) VALUES (%s, %s) ON CONFLICT DO NOTHING", (entry[0], entry[1]))
 
+config = ConfigParser()
+config.read("../config.ini")
 
-CHROMEDRIVER_PATH = config.chrome_driver
+CHROMEDRIVER_PATH = config["SELENIUM"]["DRIVER"]
+
+
 s = Service(CHROMEDRIVER_PATH)
 driver = webdriver.Chrome(service = s)
 

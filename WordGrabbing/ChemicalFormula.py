@@ -8,7 +8,7 @@ from lodstorage.sparql import SPARQL
 from Database import Database
 
 # Connect to database
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 # Get chemical formula of chemical tag
 def grab_formula(tag):

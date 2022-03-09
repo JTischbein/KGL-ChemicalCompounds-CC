@@ -128,9 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.dbcfg.ini
+.config.ini
 .DS_Store
-dbcfg.ini
+config.ini
 
 /.idea
 WordGrabbing/errorlinks.txt

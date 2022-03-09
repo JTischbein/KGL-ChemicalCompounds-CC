@@ -3,7 +3,7 @@ from langdetect import detect_langs, DetectorFactory, detect
 
 #DetectorFactory.seed = 0
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 
 def set_lang_for_article(line):

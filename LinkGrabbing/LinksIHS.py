@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
@@ -7,14 +8,10 @@ import sys
 sys.path.append('../')
 from Database import Database 
 
+config = ConfigParser()
+config.read("../config.ini")
 
-
-HOST = ""
-PORT = ""
-DBNAME = ""
-USER = ""
-PASSWORD = ""
-PROFILE = ""
+PROFILE = config["SELENIUM"]["DRIVERTIM"]
 
 
 class URL_list:
@@ -65,7 +62,7 @@ class URL_list:
         save_in_db(links)
 
     def save_in_db(links):
-        db = Database('../dbcfg.ini').connect()
+        db = Database('../config.ini').connect()
 
         for link in links:
             print(link)

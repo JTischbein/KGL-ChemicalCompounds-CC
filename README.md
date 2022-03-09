@@ -12,6 +12,8 @@ This is the Repository of the Knowledge Graph Lab. Goal was the creation of a Kn
 
 Every script can be run alone when the needed environment variables are set. In the following every step for running the script and therefore building the knowledge graph are described.
 
+IMPORTANT: To run the scripts properly and every path works correctly, you have to be in the directory of the script and then run it.
+
 ## Packages and Environmental Variables
 
 To get all needed packages, we added a requirements.txt. To install these, just run:
@@ -46,7 +48,7 @@ For specifying the login credentials and IP + Port, edit the `config.ini`.
 
 ### Database Credentials in Scripts
 
-To specify the credentials for the scripts, rename the `dbcfg.ini.example` to `dbcfg.ini` and edit the content for Postgres and !!! TODO !!! Neo4j Credentials.
+To specify the credentials for the scripts, rename the `config.ini.example` to `config.ini` and edit the content for Postgres and !!! TODO !!! Neo4j Credentials.
 
 ## Link Grabbing
 

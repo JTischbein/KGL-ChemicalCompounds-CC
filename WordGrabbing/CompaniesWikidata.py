@@ -26,7 +26,7 @@ queryResLoD = endpoint.queryAsListOfDicts(query.query)
 entries = [(record.get('company'), record.get('companyLabel')) for record in queryResLoD]
 
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 for tag, word in entries:
     tag = tag.split("/")[-1]

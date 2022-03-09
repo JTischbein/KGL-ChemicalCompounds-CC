@@ -7,11 +7,11 @@ class Database:
     def __init__(self, config_path):
         config = ConfigParser()
         config.read(config_path)
-        self.host = config["DEFAULT"]["HOST"]
-        self.port = config["DEFAULT"]["PORT"]
-        self.dbname = config["DEFAULT"]["DBNAME"]
-        self.user = config["DEFAULT"]["USER"]
-        self.pw = config["DEFAULT"]["PASSWORD"]
+        self.host = config["POSTGRES"]["HOST"]
+        self.port = config["POSTGRES"]["PORT"]
+        self.dbname = config["POSTGRES"]["DBNAME"]
+        self.user = config["POSTGRES"]["USER"]
+        self.pw = config["POSTGRES"]["PASSWORD"]
 
         self.connection = None
         self.cursor = None

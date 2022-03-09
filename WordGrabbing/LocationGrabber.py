@@ -8,7 +8,7 @@ import sys
 sys.path.append('../')
 from Database import Database 
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 articles = db.execute("SELECT link, content, language FROM articles WHERE content IS NOT NULL")
 

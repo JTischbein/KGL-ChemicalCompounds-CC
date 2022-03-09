@@ -11,7 +11,7 @@ import sys
 sys.path.append('../')
 from Database import Database 
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 
 # get all links from chemamager which are actually working

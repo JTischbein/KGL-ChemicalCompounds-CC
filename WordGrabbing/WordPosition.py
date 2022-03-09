@@ -5,7 +5,7 @@ from Database import Database
 
 word_tablename = 'companies'
 
-db = Database('../dbcfg.ini').connect()
+db = Database('../config.ini').connect()
 
 def get_indices(text, word, splitter = ' '):
     indices = []
