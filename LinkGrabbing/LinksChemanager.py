@@ -46,7 +46,7 @@ def save_in_db(entries):
 config = ConfigParser()
 config.read("../config.ini")
 
-CHROMEDRIVER_PATH = config["SELENIUM"]["DRIVER"]
+CHROMEDRIVER_PATH = config["SELENIUM"]["DRIVERTHEYS"]
 
 
 s = Service(CHROMEDRIVER_PATH)
