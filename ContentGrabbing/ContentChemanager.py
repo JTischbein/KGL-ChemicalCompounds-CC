@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -17,7 +18,11 @@ db = Database('../config.ini').connect()
 # get all links from chemamager which are actually working
 data = db.execute("SELECT link FROM articles WHERE link LIKE 'https://www.chemanager-online.com/%' AND release_date IS NOT NULL")
 
-CHROMEDRIVER_PATH = config.chrome_driver
+config = ConfigParser()
+config.read("../config.ini")
+
+CHROMEDRIVER_PATH = config["SELENIUM"]["DRIVERTHEYS"]
+
 s = Service(CHROMEDRIVER_PATH)
 driver = webdriver.Chrome(service = s)
 
