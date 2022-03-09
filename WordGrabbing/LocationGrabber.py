@@ -1,8 +1,7 @@
 import spacy
-from geotext import GeoText
 from tqdm import tqdm
 
-import Location.countries_dict as countries_dict
+import countries_dict as countries_dict
 
 import sys
 sys.path.append('../')

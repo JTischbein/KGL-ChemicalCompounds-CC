@@ -139,3 +139,5 @@ kgl_venv/
 # login credentials for database
 config.py
 
+NLP/dbcfg.ini
+dbcfg.ini
