@@ -122,6 +122,21 @@ with driver.session() as session:
     plt.title("Non-Carcinogenic Waste Year Distribution")
     plt.ylabel("Waste in pounds")
     plt.savefig("plots/non_carcinogenic_waste_year_distribution.png")
+  
+with driver.session() as session:
+    findings_amount = []
+    findings_value = []
+    for i in range(1, 11):
+        finding = session.run("MATCH (p) WHERE size((p)-[:CONTAINS]->()) = %s RETURN count(p) AS amount" % i)
+        finding = [int(row["amount"]) for row in finding]
+        findings_amount.append(finding[0])
+        findings_value.append("%d" % i)
+
+    plt.figure()
+    plt.bar(findings_value, findings_amount)
+    plt.title("Findings in Articles Distribution")
+    plt.ylabel("Findings")
+    plt.savefig("plots/findings_in_articles_distribution.png")
 
 
 cur.close()
