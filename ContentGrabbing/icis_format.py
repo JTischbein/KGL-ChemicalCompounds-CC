@@ -1,6 +1,6 @@
 from Database import Database
 import re
-db = Database('dbcfg.ini').connect()
+db = Database('config.ini').connect()
 
 
 def remove_html_tags(row):
