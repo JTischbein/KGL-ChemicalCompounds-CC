@@ -12,15 +12,7 @@ if db is None:
     sys.exit()
 
 # Get all company names
-company_names = [name[0] for name in db.execute('SELECT name FROM companies_wikidata')]
-
-# Load spacy 
-nlp_de = spacy.load('de_dep_news_trf')
-
-nlp_en = spacy.load('en_core_web_trf')
-
-
-all_insertions = []
+company_names = [line[0] for line in db.execute('SELECT name FROM companies_wikidata')]
 
 
 def save_error(link, word="", error=""):
@@ -51,23 +43,12 @@ def process_article(line):
     # Get data and check if text exists
     link = line[0]
     text = line[1]
-    language = line[3]
 
     if text == "" or text is None:
-        print("None", link)
         return
 
     # Remove all "
     text = text.replace('"', '')
-
-    # Set NLP language
-    if language == "de":
-        nlp = nlp_de
-    else:
-        nlp = nlp_en
-
-    # Process Text
-    doc = nlp(text)
 
     # Check if there is any Company in the text
     try:
@@ -77,16 +58,12 @@ def process_article(line):
     except Exception as e:
         # Save error message for debugging
         save_error(link, error=str(e))
+        print(link, str(e))
         return
     
     for comp in upcoming_names:
-        all_insertions.append((link, comp))
+        db.execute('INSERT INTO companies (link, synonym) VALUES (%s, %s)', attributes=(link, comp))
 
     
 # Run process_article for every article
 db.execute_and_run('SELECT * FROM articles', attributes=(), callback=process_article, progress_bar=True)
-
-print("Found:", len(all_insertions))
-
-for ins in all_insertions:
-    db.execute('INSERT INTO companies (link, synonym, tag) VALUES (%s, %s, %s)', attributes=(ins[0], ins[1]))

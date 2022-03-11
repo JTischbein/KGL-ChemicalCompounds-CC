@@ -1,6 +1,8 @@
 import sys
 import spacy
 from lodstorage.query import Query
+import sys
+sys.path.append("../")
 from Database import Database
 from lodstorage.sparql import SPARQL
 from urllib.parse import urlparse
@@ -42,16 +44,16 @@ def save_error(link, word="", error=""):
     f.close()
 
 
-def query(words, language):
+def query(words):
     global substanceQueryStr
 
-    q = substanceQueryStr % (words, language)
+    q = substanceQueryStr % (words)
 
     query = Query(query=q,
                   name="Recognized chemical compounds",
                   lang="sparql")
     queryResLoD = endpoint.queryAsListOfDicts(query.query)
-    entries = [record.get('entry') for record in queryResLoD]
+    entries = [record.get('substance') for record in queryResLoD]
 
     return entries
 
@@ -61,7 +63,7 @@ def check_for_any(nouns, language):
     # building the query string
     values = [' '.join([f'"{noun}"@{language}' for noun in nouns[n * 50:n * 50 + 50]]) for n in range((len(nouns) // 50) + 1)]
 
-    return query("\n".join(values), language)
+    return query("\n".join(values))
 
 
 def process_article(line):
@@ -87,10 +89,11 @@ def process_article(line):
     nl = "\n"
 
     try:
-        s = check_for_any([chunk.text for chunk in doc.noun_chunks])
+        s = check_for_any([chunk.text for chunk in doc.noun_chunks], language)
         if len(s) == 0:
             return
     except Exception as e:
+        print("Exception:", link)
         save_error(link)
         return
 
@@ -98,7 +101,7 @@ def process_article(line):
 
     for word in nouns:
         try:
-            entries = query(word, language)
+            entries = query(word)
 
             if len(entries) > 0:
                 entity_tags = [urlparse(sub).path.split("/")[-1] for sub in entries]
@@ -116,4 +119,4 @@ if db is None:
     print("Connecting to DB failed. Quitting...")
     sys.exit()
 
-db.execute_and_run('SELECT * FROM articles', attributes=(), callback=process_article, progress_bar=True)
+db.execute_and_run("SELECT * FROM articles WHERE NOT link LIKE %s", attributes=('%www.icis.com%',), callback=process_article, progress_bar=True)

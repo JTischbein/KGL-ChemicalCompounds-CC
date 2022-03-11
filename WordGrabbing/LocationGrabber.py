@@ -9,12 +9,12 @@ from Database import Database
 
 db = Database('../config.ini').connect()
 
-articles = db.execute("SELECT link, content, language FROM articles WHERE content IS NOT NULL")
+articles = db.execute("SELECT link, content, language FROM articles WHERE content IS NOT NULL AND NOT content = ''")
 
 article_count = 0
 
-english_nlp = spacy.load("en_core_web_sm")
-german_nlp = spacy.load("de_core_news_sm")
+english_nlp = spacy.load("en_core_web_trf")
+german_nlp = spacy.load("de_dep_news_trf")
 
 for article in tqdm(articles):
     article_count += 1
