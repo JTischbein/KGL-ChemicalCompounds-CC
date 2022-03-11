@@ -3,8 +3,15 @@
 
 ## Table of Contents
 - [General](#general)
+- [Packages and Environmental Variables](#packages-and-environmental-variables)
 - [Databases](#databases)
+- [Database Credentials in Scripts](#database-credentials-in-scripts)
 - [Link Grabbing](#link-grabbing)
+- [Content Grabbing](#content-grabbing)
+- [Language](#language)
+- [Word Grabbing](#word-grabbing)
+- [Relation Extraction](#relation-extraction)
+- [Knowledge Graph](#knowledge-graph)
 
 ## General
 
@@ -129,7 +136,7 @@ beautifulsoup4
 ```
 For executing `LinksChemanager.py` and `LinksIHS.py` you need an instance of selenium running. If wanted, you can use a docker instance of selenium ([GitHub](https://github.com/SeleniumHQ/docker-selenium)).
 
-## ContentGrabbing
+## Content Grabbing
 
 In the Content Grabbing part we open the crawled links and extract the text of the article.
 For all scripts the package `newspaper3k` is needed. For `ContentChemanager.py` and `ContentICIS.py` you need additionally `selenium`.
