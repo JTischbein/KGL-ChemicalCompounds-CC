@@ -5,7 +5,6 @@
 - [General](#general)
 - [Packages and Environmental Variables](#packages-and-environmental-variables)
 - [Databases](#databases)
-- [Database Credentials in Scripts](#database-credentials-in-scripts)
 - [Link Grabbing](#link-grabbing)
 - [Content Grabbing](#content-grabbing)
 - [Language](#language)
@@ -15,11 +14,11 @@
 
 ## General
 
-This is the Repository of the Knowledge Graph Lab. Goal was the creation of a Knowledge Graph for relations between companies, their use of chemical compounds and their production site locations. The result is a collection of scripts, which build step for step databases with the needed informations. 
+This is the Repository of the Knowledge Graph Lab. The Goal was the creation of a Knowledge Graph for relations between companies, their use of chemical compounds and their production site locations. The result is a collection of scripts, which build databases step by step with the needed information. 
 
-Every script can be run alone when the needed environment variables are set. In the following every step for running the script and therefore building the knowledge graph are described.
+Every script can be run alone when the needed environment variables are set. In the following every step for running the script and therefore building the knowledge graph is described.
 
-IMPORTANT: To run the scripts properly and every path works correctly, you have to be in the directory of the script and then run it.
+IMPORTANT: To run the scripts properly and ensure that every path works correctly, you have to be in the directory of the script and then run it.
 
 ## Packages and Environmental Variables
 
@@ -123,11 +122,11 @@ ALTER TABLE ONLY public.articles
 
 ### Database Credentials in Scripts
 
-To specify the credentials for the scripts, rename the `config.ini.example` to `config.ini` and edit the content for Postgres and !!! TODO !!! Neo4j credentials.
+To specify the credentials for the scripts, rename the `config.ini.example` to `config.ini` and edit the content for Postgres and Neo4j credentials.
 
 ## Link Grabbing
 
-The Link Grabbing part crawls the websites for links to articles and saves them in the Postgres database. In the `ChemietechnikURLs.txt` are all article listings from chemietechnik.de listed. Our ICIS Link Grabbing script does not work anymore, as the website got changed and our inital crawling solution is now deprecated.
+The Link Grabbing part crawls the websites for links to articles and saves them in the Postgres database. In the `ChemietechnikURLs.txt` are all articles from chemietechnik.de listed. Our ICIS Link Grabbing script does not work anymore, as the website got changed and our inital crawling solution is now deprecated.
 
 For executing `LinksChemietechnik.py` you need the following additional packages:
 ```
@@ -139,7 +138,7 @@ For executing `LinksChemanager.py` and `LinksIHS.py` you need an instance of sel
 ## Content Grabbing
 
 In the Content Grabbing part we open the crawled links and extract the text of the article.
-For all scripts the package `newspaper3k` is needed. For `ContentChemanager.py` and `ContentICIS.py` you need additionally `selenium`.
+For all scripts the package `newspaper3k` is needed. For `ContentChemanager.py` and `ContentICIS.py` you additionally need `selenium`.
 
 When crawling, we often get the same article from different links. To delete all duplicates, run the `article_content_uniquifier.py` oder run the following SQL Query, which detects duplicates and only keeps the article with the lexicographical first or minimum link:
 ```
@@ -160,7 +159,7 @@ In this step, we search for companies, locations and chemicals in the articles.
 
 ### Companies
 
-For the companies we use a listing of chemical companies from WikiData. For speed reasons we store in advance all companies in the database. This task is performed by the script `CompaniesWikidata.py` (If wanted, there is a script to just use the biggest chemical companies from Wikipedia). To run it, you need the package `pylodstorage` ([GitHub](https://github.com/WolfgangFahl/pyLoDStorage)) for quering Wikidata.
+For the companies we use a listing of chemical companies from WikiData. For speed reasons we store all companies in the database in advance. This task is performed by the script `CompaniesWikidata.py` (If wanted, there is a script to just use the biggest chemical companies from Wikipedia). To run it, you need the package `pylodstorage` ([GitHub](https://github.com/WolfgangFahl/pyLoDStorage)) for quering Wikidata.
 
 If all companies are in the database, the script `DatabaseCompanyGrabbing.py` can extract all company occurrences in the articles. It also uses `spacy`.
 
@@ -178,4 +177,4 @@ To extract all relations between the three categories companies, locations and c
 
 ## Knowledge Graph
 
-The whole database structure can be converted into a Neo4j graph database. For this, we have the scripts `DatabaseTranslation.py` and !!! TODO !!!
+The whole database structure can be converted into a Neo4j graph database. For this, we have the scripts `DatabaseTranslation.py` and seperately `article_nodes_relational_to_graph_wikidata.py` for adding the article nodes, but only those from wikidata in which data from Word Grabbing has been found. To include all articles you can run `article_nodes_relational_to_graph_complete.py`. Both scripts also add the edges outgoing from the articles. For all scripts the `neo4j` package is needed.
