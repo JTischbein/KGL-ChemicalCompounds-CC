@@ -178,3 +178,7 @@ To extract all relations between the three categories companies, locations and c
 ## Knowledge Graph
 
 The whole database structure can be converted into a Neo4j graph database. For this, we have the scripts `DatabaseTranslation.py` and seperately `article_nodes_relational_to_graph_wikidata.py` for adding the article nodes, but only those from wikidata in which data from Word Grabbing has been found. To include all articles you can run `article_nodes_relational_to_graph_complete.py`. Both scripts also add the edges outgoing from the articles. For all scripts the `neo4j` package is needed.
+
+### Waste Content
+
+The Waste Content is extracted via `wastes_content_graph.py`  from the csv file in `tri_2016-2020_us.zip`, which only contains data from factories in the USA from 2016 until 2020, provided by the `U.S. Environmental Protection Agency` ([U.S. EPA](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-data-files-calendar-years-1987-present)). The data is not recorded in the rational database, but immediately stored in the Knowledge Graph. 
