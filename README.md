@@ -177,7 +177,7 @@ To extract all relations between the three categories companies, locations and c
 
 ## Knowledge Graph
 
-The whole database structure can be converted into a Neo4j graph database. For this, we have the scripts `DatabaseTranslation.py` and seperately `article_nodes_relational_to_graph_wikidata.py` for adding the article nodes, but only those from wikidata in which data from Word Grabbing has been found. To include all articles you can run `article_nodes_relational_to_graph_complete.py`. Both scripts also add the edges outgoing from the articles. For all scripts the `neo4j` package is needed.
+The whole database structure can be converted into a Neo4j graph database. For this, we have the scripts `DatabaseTranslation.py` and seperately `article_nodes_relational_to_graph_wikidata.py` for adding the article nodes, but only those from wikidata in which data from Word Grabbing has been found. To include all articles you can run `article_nodes_relational_to_graph_complete.py`. Both scripts also add the edges outgoing from the articles, when executed after `KnowledgeGraph.py`. For all scripts the `neo4j` package is needed.
 
 ### Waste Content
 
