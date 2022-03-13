@@ -119,4 +119,4 @@ if db is None:
     print("Connecting to DB failed. Quitting...")
     sys.exit()
 
-db.execute_and_run("SELECT * FROM articles WHERE NOT link LIKE %s", attributes=('%www.icis.com%',), callback=process_article, progress_bar=True)
+db.execute_and_run("SELECT * FROM articles WHERE link NOT IN (SELECT link FROM chemicals);", attributes=(), callback=process_article, progress_bar=True)
