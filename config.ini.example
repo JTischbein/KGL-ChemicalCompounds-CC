@@ -1,8 +1,8 @@
 [POSTGRES]
-HOST=tischbe.in
-PORT=5435
-DBNAME=postgres
-USER=postgres
+HOST=
+PORT=
+DBNAME=
+USER=
 PASSWORD=
 
 [SELENIUM]
