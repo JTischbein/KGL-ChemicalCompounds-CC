@@ -111,7 +111,7 @@ def process_article(line):
                     #print(category, link, synonym, tag)
         except Exception as e:
             print("Unexpected error:", e)
-            save_error(link, word, e)
+            save_error(link, word, str(e))
             continue
 
 
