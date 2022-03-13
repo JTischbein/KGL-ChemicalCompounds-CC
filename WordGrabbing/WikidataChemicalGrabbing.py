@@ -65,6 +65,9 @@ def check_for_any(nouns, language):
 
     return query("\n".join(values))
 
+def set_analyzed(link):
+    db.execute("UPDATE articles SET analyzed = True WHERE link = %s", attributes=(False,))
+
 
 def process_article(line):
     # Get link, text and language
@@ -91,10 +94,12 @@ def process_article(line):
     try:
         s = check_for_any([chunk.text for chunk in doc.noun_chunks], language)
         if len(s) == 0:
+            set_analyzed(link)
             return
     except Exception as e:
         print("Exception:", link)
         save_error(link)
+        set_analyzed(link)
         return
 
     nouns = [f'"{chunk.text.replace(nl, "").strip()}"@{language}' for chunk in doc.noun_chunks]
@@ -113,10 +118,12 @@ def process_article(line):
             print("Unexpected error:", e)
             save_error(link, word, str(e))
             continue
+    
+    set_analyzed(link)
 
 
 if db is None:
     print("Connecting to DB failed. Quitting...")
     sys.exit()
 
-db.execute_and_run("SELECT * FROM articles WHERE link NOT IN (SELECT link FROM chemicals);", attributes=(), callback=process_article, progress_bar=True)
+db.execute_and_run("SELECT * FROM articles WHERE link NOT IN (SELECT link FROM chemicals) AND analyzed = False;", attributes=(), callback=process_article, progress_bar=True)
