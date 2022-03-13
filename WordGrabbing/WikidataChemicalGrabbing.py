@@ -66,7 +66,7 @@ def check_for_any(nouns, language):
     return query("\n".join(values))
 
 def set_analyzed(link):
-    db.execute("UPDATE articles SET analyzed = True WHERE link = %s", attributes=(False,))
+    db.execute("UPDATE articles SET analyzed = True WHERE link = %s", attributes=(link,))
 
 
 def process_article(line):
