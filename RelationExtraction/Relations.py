@@ -9,17 +9,27 @@ from nltk import tokenize
 
 from Database import Database
 
+if len(sys.argv) != 6:
+    print("Arguments: <tablename1> <tablename2> <entity1> <entity2> <relationtable>")
+    sys.exit()
+
 english_deps = ["nsubj", "nsubj_pass", "dobj", "iobj", "pobj"]
 german_deps = ["sb", "sbp", "oa", "og", "op"]
 
 english_nlp = spacy.load("en_core_web_trf")
 german_nlp = spacy.load("de_dep_news_trf")
 
-db1 = "companies"
-db2 = "locations"
-name1 = "company"
-name2 = "location"
-rel_table = "company_location_relations"
+# db1 = "companies"
+# db2 = "locations"
+# name1 = "company"
+# name2 = "location"
+# rel_table = "company_location_relations"
+
+db1 = sys.argv[1]
+db2 = sys.argv[2]
+name1 = sys.argv[3]
+name2 = sys.argv[4]
+rel_table = sys.argv[5]
 
 db = Database("../config.ini").connect()
 
