@@ -6,6 +6,7 @@ import psycopg2
 from tqdm import tqdm
 from configparser import ConfigParser
 
+import library
 
 config = ConfigParser()
 config.read("../config.ini")
@@ -44,6 +45,7 @@ for synonyms, formula in zip(chemical_synonyms, chemical_formulas):
     for synonym in synonyms:
         chemical_dictionary[synonym] = formula
 
+<<<<<<< HEAD
 # creates a noun list for each sentence
 def get_nouns(sentences):
     nouns = []
@@ -120,21 +122,23 @@ german_deps = ["sb", "sbp", "oa", "og", "op"]
 
 english_nlp = spacy.load("en_core_web_trf")
 german_nlp = spacy.load("de_dep_news_trf")
+=======
+>>>>>>> 0303904 (Relation_extraction: Refactored relation_extraction to library)
 
 for article_count, article in enumerate(tqdm(articles)):
     article_count += 1
 
     if article[2] == "en":
-        nlp = english_nlp
-        deps = english_deps
+        nlp = library.english_nlp
+        deps = library.english_deps
     else:
-        nlp = german_nlp
-        deps = german_deps
+        nlp = library.german_nlp
+        deps = library.german_deps
 
     sentences = tokenize.sent_tokenize(article[0])
-    noun_sentences = get_nouns(sentences)
+    noun_sentences = library.get_nouns(sentences)
 
-    article_companies, article_chemicals, article_locations = get_entities(noun_sentences)
+    article_companies, article_chemicals, article_locations = library.get_all_entities(noun_sentences)
 
     chemical_indices = [chemical[1] for chemical in article_chemicals]
     article_compounds = [chemical[0] for chemical in article_chemicals]
@@ -154,7 +158,7 @@ for article_count, article in enumerate(tqdm(articles)):
             # class 2: no specific relationship, but appear in the same sentence
             if not class_1:
                 cur.execute("INSERT INTO company_chemical_relations (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[get_chemical(article_chemicals, sentence_index)], 2,  0,  article[1]))
-            remove_chemical(article_chemicals, sentence_index)
+            library.remove_chemical(article_chemicals, sentence_index)
 
         if sentence_index in location_indices:
             sentence = sentences[sentence_index]
@@ -167,9 +171,9 @@ for article_count, article in enumerate(tqdm(articles)):
             # class 2: no specific relationship, but appear in the same sentence
             if not class_1:
                 cur.execute("INSERT INTO company_location_relations (company, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], get_location(article_locations, sentence_index), 2, 0, article[1]))
-            remove_location(article_locations, sentence_index)
+            library.remove_location(article_locations, sentence_index)
         article_companies.remove(company)
-    closest_entity(article_companies, article_chemicals, article_locations)
+    library.closest_entity_all(article_companies, article_chemicals, article_locations)
 
     if article_count % 300 == 0:
         conn.commit()
