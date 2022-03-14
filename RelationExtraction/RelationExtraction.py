@@ -116,8 +116,8 @@ def closest_entity(article_companies, article_chemicals, article_locations):
 english_deps = ["nsubj", "nsubj_pass", "dobj", "iobj", "pobj"]
 german_deps = ["sb", "sbp", "oa", "og", "op"]
 
-english_nlp = spacy.load("en_core_web_sm")
-german_nlp = spacy.load("de_core_news_sm")
+english_nlp = spacy.load("en_core_web_trf")
+german_nlp = spacy.load("de_dep_news_trf")
 
 for article_count, article in enumerate(tqdm(articles)):
     article_count += 1
