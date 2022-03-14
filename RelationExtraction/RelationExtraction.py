@@ -1,5 +1,6 @@
 import spacy
-from nltk import tokenize
+from nltk import tokenize, nltk
+nltk.download('punkt')
 import psycopg2
 from tqdm import tqdm
 from configparser import ConfigParser
