@@ -36,6 +36,8 @@ def detect_occurences(syn1, syn2, sentences):
             occ1.append(i)
         if syn2 in sentence:
             occ2.append(i)
+
+    # company BASF: [1,4,7], location De:; [2,4,8] = (1,2),(1,4),(1,8)(4,2)(4,4)(4,8)...
     
     return occ1, occ2
 
@@ -69,7 +71,10 @@ def line(l):
 
     sentences = nltk.sent_tokenize(text)
     occ1, occ2 = detect_occurences(syn1, syn2, sentences)
-    
+
+    min_hierarchy = 4
+    min_word_gap = 9999999
+
     for pos1 in occ1:
         for pos2 in occ2:
             hierarchy = 0
@@ -82,9 +87,13 @@ def line(l):
             else:
                 hierarchy = 3
                 word_gap = abs(pos1 - pos2)
-            save_in_db(syn1, syn2, hierarchy, word_gap, link)
+            if min_hierarchy > hierarchy:
+                min_hierarchy = hierarchy
+            if min_word_gap > word_gap:
+                min_word_gap = word_gap
+            
+    save_in_db(syn1, syn2, min_hierarchy, min_word_gap, link)
 
 
-#check_coherence("Karl", "Peter", "Karl hat Peter geschlagen", 'de')
 
 db.execute_and_run("SELECT DISTINCT a.link as link, a.synonym, b.synonym, art.content, art.language FROM " + db1 + " a INNER JOIN " + db2 + " b ON a.link = b.link INNER JOIN articles art ON a.link = art.link;", callback=line, progress_bar=True)
