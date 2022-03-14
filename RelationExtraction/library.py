@@ -1,7 +1,7 @@
 import spacy
 
 # creates a noun list for each sentence
-def get_nouns(sentences):
+def get_nouns(sentences, nlp):
     nouns = []
     for sentence in sentences:
         doc = nlp(sentence)
@@ -9,7 +9,7 @@ def get_nouns(sentences):
     return nouns 
 
 # Allows us to fetch all companies, chemicals and locations from the article
-def get_all_entities(noun_sentences):
+def get_all_entities(noun_sentences, companies, chemicals, locations):
     company_list = []
     chemical_list = []
     location_list = []
@@ -24,7 +24,7 @@ def get_all_entities(noun_sentences):
     return company_list, chemical_list, location_list 
 
 # Use this function to return a reduced set for chemical->location relation
-def get_entities(noun_sentences):
+def get_entities(noun_sentences, chemicals, locations):
     chemical_list = []
     location_list = []
     for idx, sentence in enumerate(noun_sentences):
@@ -56,7 +56,7 @@ def remove_location(article_locations, sentence_index):
             article_locations.remove(location)
 
 # For the entities which are left over, we would like to calculate the distance between the entity (chemical or location) and the company
-def closest_entity_all(article_companies, article_chemicals, article_locations):
+def closest_entity_all(article_companies, article_chemicals, article_locations, chemical_dictionary, article, cur):
     # First we have to find the closest chemical to the company
     for company in article_companies:
         if not article_chemicals:
@@ -83,7 +83,7 @@ def closest_entity_all(article_companies, article_chemicals, article_locations):
         article_locations.remove(closest_location)
 
 # For the entities which are left over, we would like to calculate the distance between the entity (chemical or location) and the company
-def closest_entity(article_chemicals, article_locations):
+def closest_entity(article_chemicals, article_locations, chemical_dictionary, cur, article):
     # We have to find the closest location to the chemical
     for chemical in article_chemicals:
         if not article_locations:
@@ -94,7 +94,7 @@ def closest_entity(article_chemicals, article_locations):
             if abs(chemical[1] - location[1]) < location_distance:
                 closest_location = location
                 location_distance = abs(chemical[1] - location[1])
-        cur.execute("INSERT INTO chemical_location_relations (company, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (chemical[0], closest_location[0], 3, location_distance, article[1]))
+        cur.execute("INSERT INTO chemical_location_relations (chemical, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (chemical_dictionary[chemical[0]], closest_location[0], 3, location_distance, article[1]))
         article_locations.remove(closest_location)
 
 english_deps = ["nsubj", "nsubj_pass", "dobj", "iobj", "pobj"]

@@ -53,9 +53,9 @@ for article_count, article in enumerate(tqdm(articles)):
         deps = library.german_deps
 
     sentences = tokenize.sent_tokenize(article[0])
-    noun_sentences = library.get_nouns(sentences)
+    noun_sentences = library.get_nouns(sentences, nlp)
 
-    article_chemicals, article_locations = library.get_entities(noun_sentences)
+    article_chemicals, article_locations = library.get_entities(noun_sentences, chemicals, locations)
 
     chemical_indices = [chemical[1] for chemical in article_chemicals]
     article_compounds = [chemical[0] for chemical in article_chemicals]
@@ -71,14 +71,14 @@ for article_count, article in enumerate(tqdm(articles)):
             for token in nlp(sentence):
                 # class 1: location is object of chemical or vice versa
                 if token.dep_ in deps and token.text in article_countries:
-                    cur.execute("INSERT INTO chemical_location_relations (company, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s,  %s)", (chemical[0], token.text, 1, 0, article[1]))
+                    cur.execute("INSERT INTO chemical_location_relations (chemical, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s,  %s)", (chemical_dictionary[chemical[0]], token.text, 1, 0, article[1]))
                     class_1 = True
             # class 2: no specific relationship, but appear in the same sentence
             if not class_1:
-                cur.execute("INSERT INTO chemical_location_relations (company, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (chemical[0], library.get_location(article_locations, sentence_index), 2, 0, article[1]))
+                cur.execute("INSERT INTO chemical_location_relations (chemical, location, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (chemical_dictionary[chemical[0]], library.get_location(article_locations, sentence_index), 2, 0, article[1]))
             library.remove_location(article_locations, sentence_index)
         article_chemicals.remove(chemical)
-    library.closest_entity(article_chemicals, article_locations)
+    library.closest_entity(article_chemicals, article_locations, chemical_dictionary, cur, article)
 
     if article_count % 300 == 0:
         conn.commit()
