@@ -153,7 +153,7 @@ for article_count, article in enumerate(tqdm(articles)):
                     class_1 = True
             # class 2: no specific relationship, but appear in the same sentence
             if not class_1:
-                cur.execute("INSERT INTO company_chemical_relations (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[get_chemical(article_chemicals, sentence_index)], 2,  0,  article[1])
+                cur.execute("INSERT INTO company_chemical_relations (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[get_chemical(article_chemicals, sentence_index)], 2,  0,  article[1]))
             remove_chemical(article_chemicals, sentence_index)
 
         if sentence_index in location_indices:
