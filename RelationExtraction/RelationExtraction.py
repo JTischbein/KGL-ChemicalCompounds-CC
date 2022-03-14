@@ -16,7 +16,7 @@ USER = config["POSTGRES"]["USER"]
 PW = config["POSTGRES"]["PASSWORD"]
 
 conn = psycopg2.connect(host=HOST, port=PORT, dbname=DBNAME, user=USER, password=PW)
-cur = conn.cursor()                                                                                                                                                   
+cur = conn.cursor()
 
 # We need the content of all articles that were mentioned in the companies table
 cur.execute("SELECT DISTINCT a.content, a.link, a.language FROM articles a, companies c WHERE a.link = c.link")                          
@@ -99,7 +99,7 @@ def closest_entity(article_companies, article_chemicals, article_locations):
             if abs(company[1] - chemical[1]) < chemical_distance:
                 closest_chemical = chemical
                 chemical_distance = abs(company[1] - chemical[1])
-        cur.execute("INSERT INTO company_chemical_relations (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], chemical_dictionary[closest_chemical[0]], 3, chemical_distance, article[1]))
+        cur.execute("INSERT INTO company_chemical_relations (company, chemical, hierarchy, word_gap, article) VALUES (%s, %s, %s, %s, %s)", (company[0], None if closest_chemical[0] is None else chemical_dictionary[closest_chemical[0]], 3, chemical_distance, article[1]))
         article_chemicals.remove(closest_chemical)
     # Then we have to find the closest location to the company
     for company in article_companies:
