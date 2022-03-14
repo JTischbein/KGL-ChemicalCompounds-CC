@@ -49,4 +49,9 @@ def iteration(line):
     
 
 # Run iteration for every chemical
-db.execute_and_run('SELECT * FROM chemicals', callback=iteration, progress_bar=True)
+#db.execute_and_run('SELECT * FROM chemicals', callback=iteration, progress_bar=True)
+
+def set_formula_as_synonym(line):
+    db.execute('UPDATE chemicals SET chemical_formula = %s WHERE synonym = %s', attributes=(line[1], line[1]))
+
+db.execute_and_run('SELECT * FROM chemicals WHERE chemical_formula IS NULL;', callback=set_formula_as_synonym, progress_bar=True)
