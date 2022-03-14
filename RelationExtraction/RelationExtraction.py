@@ -1,4 +1,6 @@
 import spacy
+import nltk
+nltk.download("punkt")
 from nltk import tokenize
 import psycopg2
 from tqdm import tqdm
