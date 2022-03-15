@@ -40,12 +40,12 @@ if __name__ == "__main__":
         graph.create_entity(location, "Location")
 
     # Add company->chemical relationships
-    cur.execute("""SELECT company, chemical, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
-                SELECT company, chemical, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
-                FROM company_chemical_relations
-                GROUP BY company, chemical, hierarchy
-                ORDER BY company, chemical, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
-                GROUP BY company, chemical""")
+    cur.execute("""SELECT company, chemical_formula, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
+                SELECT company, chemical_formula, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
+                FROM company_chemical_relations INNER JOIN (SELECT * FROM articles WHERE release_date >= '2015-01-01') a ON company_chemical_relations.article = a.link
+                GROUP BY company, chemical_formula, hierarchy
+                ORDER BY company, chemical_formula, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
+                GROUP BY company, chemical_formula""")
     company_chemical = cur.fetchall()
     chemical_gap = [float(gap[4][0]) for gap in company_chemical]
     print("Adding company->chemical relationships")
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # Add company->location relationships
     cur.execute("""SELECT company, location, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
                 SELECT company, location, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
-                FROM company_location_relations
+                FROM company_location_relations INNER JOIN (SELECT * FROM articles WHERE release_date >= '2015-01-01') a ON company_location_relations.article = a.link
                 GROUP BY company, location, hierarchy
                 ORDER BY company, location, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
                 GROUP BY company, location""")
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # Add chemical->location relationships
     cur.execute("""SELECT chemical_formula, location, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
                 SELECT chemical_formula, location, hierarchy, COUNT(hierarchy) as hcount, AVG(word_gap) as wg
-                FROM chemical_location_relations
+                FROM chemical_location_relations INNER JOIN (SELECT * FROM articles WHERE release_date >= '2015-01-01') a ON chemical_location_relations.article = a.link
                 GROUP BY chemical_formula, location, hierarchy
                 ) sub
                 GROUP BY chemical_formula, location;""")
