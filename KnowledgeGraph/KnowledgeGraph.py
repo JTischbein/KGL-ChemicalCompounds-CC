@@ -87,8 +87,8 @@ class KnowledgeGraph:
         if synonyms is None:
             result = tx.run("CREATE (a: %s {name: '%s'}) RETURN a.name AS name, labels(a) AS label" % (label, name))
         else:
-            synonyms = '['+', '.join(synonyms)+']'
-            result = tx.run("CREATE (a: %s {name: '%s', synonyms: %s}) RETURN a.name AS name, a.synonym AS synonym labels(a) AS label" % (label, name, synonyms))
+            synonyms = '["'+'", "'.join(synonyms)+'"]'
+            result = tx.run("CREATE (a: %s {name: '%s', synonyms: %s}) RETURN a.name AS name, a.synonym AS synonym, labels(a) AS label" % (label, name, synonyms))
         return result.single()
 
     def create_relationship(self, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap):
@@ -119,8 +119,10 @@ class KnowledgeGraph:
         names of the linked entities
         """
         subject = subject.replace("'", "")
-        hierarchy_class = '['+', '.join(hierarchy_class)+']'
-        hierarchy_count = '['+', '.join(hierarchy_count)+']'
+        hierarchy_class = [str(x) for x in hierarchy_class]
+        hierarchy_class = '["'+'", "'.join(hierarchy_class)+'"]'
+        hierarchy_count = [str(x) for x in hierarchy_count]
+        hierarchy_count = '["'+'", "'.join(hierarchy_count)+'"]'
         with self.driver.session() as session:
             result = session.write_transaction(
                 self._create_and_return_relationship, subject, subjectLabel, relation, object, objectLabel, hierarchy_class, hierarchy_count, word_gap)

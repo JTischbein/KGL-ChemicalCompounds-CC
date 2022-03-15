@@ -13,12 +13,13 @@ if __name__ == "__main__":
     
     graph = KnowledgeGraph(config.GraphUri, config.GraphUser, config.GraphPassword)
 
-    graph.delete()
+    graph.delete_all()
 
     # Add all companies to the graph
-    cur.execute("SELECT DISTINCT companies.synonym FROM companies INNER JOIN company_wikidata cd on companies.synonym = cd.name;")
+    cur.execute("SELECT DISTINCT companies.synonym FROM companies INNER JOIN companies_wikidata cd on companies.synonym = cd.name;")
     companies = cur.fetchall()
     companies = [company[0] for company in companies]
+    print("Adding companies to the graph")
     for company in tqdm(companies):
         graph.create_entity(company, "Company")
     
@@ -26,38 +27,55 @@ if __name__ == "__main__":
     cur.execute("SELECT ch.chemical_formula, ch.tag, array_agg(DISTINCT ch2.synonym) FROM chemicals ch LEFT JOIN chemicals ch2 ON ch.chemical_formula = ch2.chemical_formula GROUP BY ch.chemical_formula, ch.tag")
     chemicals = cur.fetchall()
     chemicals = [chemical for chemical in chemicals if chemical[0] is not None]
-    for chemical in chemicals:
+    print("Adding chemicals to the graph")
+    for chemical in tqdm(chemicals):
         graph.create_entity(chemical[0], "chemical_compound", synonyms=chemical[2])
     
     # Add all locations to the graph
     cur.execute("SELECT DISTINCT synonym FROM locations")
     locations = cur.fetchall()
-    locations = [location[0] for location in locations] 
+    locations = [location[0] for location in locations]
+    print("Adding locations to the graph") 
     for location in tqdm(locations):
         graph.create_entity(location, "Location")
 
     # Add company->chemical relationships
     cur.execute("""SELECT company, chemical, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
                 SELECT company, chemical, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
-                FROM company_chemical
+                FROM company_chemical_relations
                 GROUP BY company, chemical, hierarchy
-                ORDER BY company, chemical, hierarchy) tab INNER JOIN company_wikidata cw ON tab.company = cw.name
+                ORDER BY company, chemical, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
                 GROUP BY company, chemical""")
     company_chemical = cur.fetchall()
     chemical_gap = [float(gap[4][0]) for gap in company_chemical]
-    for company_chemical in tqdm(company_chemical):
-        graph.create_relationship(company_chemical[0], "Company", "PRODUCES", company_chemical[1], "chemical_compound", company_chemical[2], company_chemical[3], chemical_gap)
+    print("Adding company->chemical relationships")
+    for company_chemical, gap in tqdm(zip(company_chemical, chemical_gap)):
+        graph.create_relationship(company_chemical[0], "Company", "PRODUCES", company_chemical[1], "chemical_compound", company_chemical[2], company_chemical[3], gap)
 
     # Add company->location relationships
     cur.execute("""SELECT company, location, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
                 SELECT company, location, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
-                FROM company_location
+                FROM company_location_relations
                 GROUP BY company, location, hierarchy
-                ORDER BY company, location, hierarchy) tab INNER JOIN company_wikidata cw ON tab.company = cw.name
-                GROUP BY company, chemical""")
+                ORDER BY company, location, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
+                GROUP BY company, location""")
     company_location = cur.fetchall()
     location_gap = [float(gap[4][0]) for gap in company_location]
-    for company_location in tqdm(company_location):
-        graph.create_relationship(company_location[0], "Company", "LOCATED_IN", company_location[1], "Location", company_location[2], company_location[3], location_gap)
+    print("Adding company->location relationships")
+    for company_location, gap in tqdm(zip(company_location, location_gap)):
+        graph.create_relationship(company_location[0], "Company", "LOCATED_IN", company_location[1], "Location", company_location[2], company_location[3], gap)
+
+    # Add chemical->location relationships
+    cur.execute("""SELECT chemical_formula, location, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
+                SELECT chemical_formula, location, hierarchy, COUNT(hierarchy) as hcount, AVG(word_gap) as wg
+                FROM chemical_location_relations
+                GROUP BY chemical_formula, location, hierarchy
+                ) sub
+                GROUP BY chemical_formula, location;""")
+    chemical_location = cur.fetchall()
+    location_gap = [float(gap[4][0]) for gap in chemical_location]
+    print("Adding chemical->location relationships")
+    for chemical_location, gap in tqdm(zip(chemical_location, location_gap)):
+        graph.create_relationship(chemical_location[0], "chemical_compound", "PRODUCED_IN", chemical_location[1], "Location", chemical_location[2], chemical_location[3], gap)
 
     graph.close()
