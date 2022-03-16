@@ -61,11 +61,17 @@ def check_coherence(syn1, syn2, sentence, language):
 
     doc = nlp(sentence)
 
+    syn1_bool = False
+    syn2_bool = False
+    
     for token in doc:
-        if token.dep_ in deps and (syn1 in token.text or syn2 in token.text):
-            return True
+        if token.dep_ in deps:
+            if syn1 in token.text:
+                syn1_bool = True
+            elif syn2 in token.text:
+                syn2_bool = True
 
-    return False
+    return syn1_bool and syn2_bool
 
     
 
