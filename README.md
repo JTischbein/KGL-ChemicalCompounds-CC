@@ -2,15 +2,23 @@
 
 
 ## Table of Contents
-- [General](#general)
-- [Packages and Environmental Variables](#packages-and-environmental-variables)
-- [Databases](#databases)
-- [Link Grabbing](#link-grabbing)
-- [Content Grabbing](#content-grabbing)
-- [Language](#language)
-- [Word Grabbing](#word-grabbing)
-- [Relation Extraction](#relation-extraction)
-- [Knowledge Graph](#knowledge-graph)
+- [KGL-ChemicalCompounds-CC](#kgl-chemicalcompounds-cc)
+  - [Table of Contents](#table-of-contents)
+  - [General](#general)
+  - [Packages and Environmental Variables](#packages-and-environmental-variables)
+  - [Databases](#databases)
+    - [Database Credentials in Scripts](#database-credentials-in-scripts)
+  - [Link Grabbing](#link-grabbing)
+  - [Content Grabbing](#content-grabbing)
+  - [Language](#language)
+  - [Word Grabbing](#word-grabbing)
+    - [Companies](#companies)
+    - [Locations](#locations)
+    - [Chemicals](#chemicals)
+    - [Training Data with `WordPosition.py`](#training-data-with-wordpositionpy)
+  - [Relation Extraction](#relation-extraction)
+  - [Knowledge Graph](#knowledge-graph)
+    - [Waste Content](#waste-content)
 
 ## General
 
@@ -68,7 +76,7 @@ CREATE TABLE public.articles (
 );
 
 CREATE TABLE public.companies_wikidata (
-    tag text NOT NULL,
+    tag text NOT NULL
     name text NOT NULL
 );
 
@@ -149,9 +157,7 @@ DELETE FROM articles WHERE link NOT IN (
 
 ## Language 
 
-In our further analysis, we use NLP. To select the right model for the articles, we need the language. In the Language folder are several scripts which iterate over the articles, detect their languages (only German or English, as we have no other sources) and save an abbreviation ("de" or "en") in the database.
-
-TODO SKRIPT
+In our further analysis, we use NLP. To select the right model for the articles, we need the language. In the Language folder are several scripts which iterate over the articles, detect their languages (only German or English, as we have no other sources) and save an abbreviation ("de" or "en") in the database. As the language detection is not deterministic, we tried different libraries, but came to the conclusion that every script works fine.
 
 ## Word Grabbing
 
@@ -163,17 +169,36 @@ For the companies we use a listing of chemical companies from WikiData. For spee
 
 If all companies are in the database, the script `DatabaseCompanyGrabbing.py` can extract all company occurrences in the articles. It also uses `spacy`.
 
+As last step we need the Wikidata tags for every company. To add these, run the `CompaniesTags.py` script.
+
 ### Locations
 
-For the locations we used a fairly simple approach, as every little step in direction of more complex locations brought us tons of trash data. In the end we focused on countries with a predefined dict. To extract all locations and save them in the database, you need to run `LocationGrabber.py`.
+For the locations we used a fairly simple approach, as every little step in direction of more complex locations brought us tons of trash data. In the end we focused on countries with a predefined dict (`countries_dict.py`). To extract all locations and save them in the database, you need to run `LocationGrabber.py`.
 
 ### Chemicals
 
-For the chemical detection we query Wikidata. This task is performed by the script `WikidataChemicalGrabbing.py`. Here we need the packages `spacy` and `pylodstorage`. To add the associated chemical formulas to the found synonyms, you can run `ChemicalFormula.py`, which also queries Wikidata.
+For the chemical detection we query Wikidata. This task is performed by the script `WikidataChemicalGrabbing.py`. Here we need the packages `spacy` and `pylodstorage` ([GitHub](https://github.com/WolfgangFahl/pyLoDStorage)). To add the associated chemical formulas to the found synonyms, you can run `ChemicalFormula.py`, which also queries Wikidata.
+
+### Training Data with `WordPosition.py`
+
+The script `WordPosition.py` saves for every synonym in `companies` the synonym and the sentence it occurs in to generate a table of training data for training a NER model.
 
 ## Relation Extraction
 
-To extract all relations between the three categories companies, locations and chemicals, run `RelationExtraction.py`. !!! TODO !!!
+To extract all relations between the three categories companies, locations and chemicals, run `Relations.py` with the following arguments:
+
+1. Name of the first database of words
+2. Name of the second database of words
+3. Name of the first word category in relations table
+4. Name of the second word category in relations table
+5. Name of the relationstable
+
+For example, running the script for all relations between `companies` and `locations` table:
+```
+python Relations.py companies locations company location company_location_relations
+```
+
+For much simpler queries later on (here needed), run the scripts `ChemicalFormula.py` and `LocationISO.py` in the folder `RelationExtraction`. The scripts will bring the location ISO and the chemical formulas in the relation tables.
 
 ## Knowledge Graph
 
