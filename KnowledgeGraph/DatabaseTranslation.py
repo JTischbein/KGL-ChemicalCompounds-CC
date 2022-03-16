@@ -53,12 +53,12 @@ if __name__ == "__main__":
         graph.create_relationship(company_chemical[0], "Company", "PRODUCES", company_chemical[1], "chemical_compound", company_chemical[2], company_chemical[3], gap)
 
     # Add company->location relationships
-    cur.execute("""SELECT company, location, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
-                SELECT company, location, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
+    cur.execute("""SELECT company, iso, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
+                SELECT company, iso, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
                 FROM company_location_relations INNER JOIN (SELECT * FROM articles WHERE release_date >= '2015-01-01') a ON company_location_relations.article = a.link
-                GROUP BY company, location, hierarchy
-                ORDER BY company, location, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
-                GROUP BY company, location""")
+                GROUP BY company, iso, hierarchy
+                ORDER BY company, iso, hierarchy) tab INNER JOIN companies_wikidata cw ON tab.company = cw.name
+                GROUP BY company, iso""")
     company_location = cur.fetchall()
     location_gap = [float(gap[4][0]) for gap in company_location]
     print("Adding company->location relationships")
@@ -66,12 +66,12 @@ if __name__ == "__main__":
         graph.create_relationship(company_location[0], "Company", "LOCATED_IN", company_location[1], "Location", company_location[2], company_location[3], gap)
 
     # Add chemical->location relationships
-    cur.execute("""SELECT chemical_formula, location, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
-                SELECT chemical_formula, location, hierarchy, COUNT(hierarchy) as hcount, AVG(word_gap) as wg
+    cur.execute("""SELECT chemical_formula, iso, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
+                SELECT chemical_formula, iso, hierarchy, COUNT(hierarchy) as hcount, AVG(word_gap) as wg
                 FROM chemical_location_relations INNER JOIN (SELECT * FROM articles WHERE release_date >= '2015-01-01') a ON chemical_location_relations.article = a.link
-                GROUP BY chemical_formula, location, hierarchy
+                GROUP BY chemical_formula, iso, hierarchy
                 ) sub
-                GROUP BY chemical_formula, location;""")
+                GROUP BY chemical_formula, iso""")
     chemical_location = cur.fetchall()
     location_gap = [float(gap[4][0]) for gap in chemical_location]
     print("Adding chemical->location relationships")
