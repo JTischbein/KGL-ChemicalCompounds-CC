@@ -1,15 +1,22 @@
 # Genrating plots for the presentation and the report
 
+from configparser import ConfigParser
+from dis import dis
+from html import entities
 import psycopg2
 import matplotlib.pyplot as plt
 import os
 from neo4j import GraphDatabase
 import sys
+import numpy as np
+
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+
 sys.path.append("../")
 from Database import Database
+from KnowledgeGraph.KnowledgeGraph import KnowledgeGraph
 
-import config
-import graph_config
 
 try:
     os.mkdir("plots")
@@ -24,9 +31,76 @@ if db == None:
     print("Cannot connect to Postgres database")
     sys.exit()
 
-driver = GraphDatabase.driver(HOST, auth=(USER, PASSWORD))
 
 
+
+oa_chem_count = db.execute("SELECT COUNT(*) FROM chemicals")
+oa_comp_count = db.execute("SELECT COUNT(*) FROM companies")
+oa_loca_count = db.execute("SELECT COUNT(*) FROM locations")
+
+dis_chem_count = db.execute("SELECT COUNT(*) FROM (SELECT DISTINCT chemical_formula FROM chemicals) sub")
+dis_comp_count = db.execute("SELECT COUNT(*) FROM (SELECT DISTINCT tag FROM companies) sub")
+dis_loca_count = db.execute("SELECT COUNT(*) FROM (SELECT DISTINCT iso FROM locations) sub")
+
+
+labels = ['chemicals', 'companies', 'locations']
+distinct = [dis_chem_count, dis_comp_count, dis_loca_count]
+distinct = [dis[0][0] for dis in distinct]
+overall = [oa_chem_count, oa_comp_count, oa_loca_count]
+overall = [ov[0][0] for ov in overall]
+
+x = np.arange(len(labels))  # the label locations
+width = 0.35  # the width of the bars
+
+fig, ax = plt.subplots()
+rects1 = ax.bar(x - width/2, distinct, width, label='Distinct')
+rects2 = ax.bar(x + width/2, overall, width, label='All')
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('Total')
+ax.set_title('Word occurrence per category')
+ax.set_xticks(x, labels)
+ax.legend()
+
+ax.bar_label(rects1, padding=3)
+ax.bar_label(rects2, padding=3)
+
+fig.tight_layout()
+
+plt.savefig("plots/wordspercat.png")
+
+
+entities = db.execute("SELECT synonym, COUNT(synonym) FROM companies GROUP BY synonym ORDER BY COUNT(synonym) DESC LIMIT 101")
+
+indices = np.arange(0,21) * 5
+
+names = [str(i) + ": " + entities[i][0] for i in indices]
+count = [entities[i][1] for i in indices]
+
+
+fig, ax = plt.subplots()
+x = np.arange(len(names))
+
+width = 0.25
+rects1 = ax.bar(x, count, width)
+
+plt.bar(names, count)
+plt.title("Companies Occurrences")
+plt.xlabel("")
+plt.ylabel("Total Occurrences")
+plt.xticks(rotation = 90)
+ax.bar_label(rects1, padding=3)
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+# alternate option without .gcf
+plt.subplots_adjust(bottom=0.35)
+plt.savefig("plots/companiescount0-100-5.png")
+
+
+config = ConfigParser()
+config.read("../config.ini")
+
+driver = GraphDatabase.driver(config["NEO4J"]["GRAPH_HOST"], auth=(config["NEO4J"]["GRAPH_USER"], config["NEO4J"]["GRAPH_PASSWORD"]))
 
 
 article_distribution = db.execute("""
