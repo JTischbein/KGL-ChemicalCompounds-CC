@@ -17,6 +17,11 @@ sys.path.append("../")
 from Database import Database
 from KnowledgeGraph.KnowledgeGraph import KnowledgeGraph
 
+<<<<<<< HEAD
+=======
+import config
+#import graph_config
+>>>>>>> 37481b4 (Report: Updated relation plots)
 
 try:
     os.mkdir("plots")
@@ -33,6 +38,7 @@ if db == None:
 
 
 
+<<<<<<< HEAD
 
 oa_chem_count = db.execute("SELECT COUNT(*) FROM chemicals")
 oa_comp_count = db.execute("SELECT COUNT(*) FROM companies")
@@ -103,6 +109,8 @@ config.read("../config.ini")
 driver = GraphDatabase.driver(config["NEO4J"]["GRAPH_HOST"], auth=(config["NEO4J"]["GRAPH_USER"], config["NEO4J"]["GRAPH_PASSWORD"]))
 
 
+=======
+>>>>>>> 37481b4 (Report: Updated relation plots)
 article_distribution = db.execute("""
         SELECT COUNT(link)
         FROM articles
@@ -115,7 +123,6 @@ article_distribution = db.execute("""
         END
         """)
 article_distribution = [x[0] for x in article_distribution]
-print(article_distribution)
 
 plt.figure()
 plt.pie(article_distribution, labels = ['chemietechnik.de', 'chemanager-online.com', 'ihsmarkit.com', 'icis.com'], autopct='%1.1f%%')
@@ -124,58 +131,106 @@ plt.savefig("plots/article_distribution.png")
 
 
 location_distribution = db.execute("""
-        SELECT iso, COUNT(synonym)
-        FROM locations
+        SELECT l.iso, COUNT(l.synonym)
+        FROM locations l, articles a
+        WHERE l.link = a.link AND a.release_date >= '2015-01-01'
         GROUP BY iso
-        HAVING COUNT(synonym) > 50
-        ORDER BY COUNT(synonym) DESC
+        ORDER BY COUNT(l.synonym) DESC
+        LIMIT 20
 """)
 location_name = [x[0] for x in location_distribution]
 location_count = [x[1] for x in location_distribution]
-#print(location_distribution)
 
-plt.figure()
+plt.figure(figsize=(15,5))
+plt.subplot(1,3,1)
 plt.bar(location_name, location_count)
 plt.xticks(rotation=90)
-plt.title("Location Distribution")
+plt.title("Total occurences")
 plt.ylabel("Number of articles")
-plt.savefig("plots/location_distribution.png")
 
+
+location_relation_distribution = db.execute("""
+        SELECT iso, COUNT(iso)
+        FROM chemical_location_relations 
+        GROUP BY iso, hierarchy
+        HAVING hierarchy = 1
+        ORDER BY COUNT(iso) DESC
+        LIMIT 20
+""")
+location_relation_name = [x[0] for x in location_relation_distribution]
+location_relation_count = [x[1] for x in location_relation_distribution]
+
+plt.subplot(1,3,2)
+plt.bar(location_relation_name, location_relation_count)
+plt.xticks(rotation=90)
+plt.title("chemical->location relations")
+plt.ylabel("Number of relations")
+
+location_relation_distribution = db.execute("""
+        SELECT iso, COUNT(iso)
+        FROM company_location_relations 
+        GROUP BY iso, hierarchy
+        HAVING hierarchy = 1
+        ORDER BY COUNT(iso) DESC
+        LIMIT 20
+""")
+location_relation_name = [x[0] for x in location_relation_distribution]
+location_relation_count = [x[1] for x in location_relation_distribution]
+
+plt.subplot(1,3,3)
+plt.bar(location_relation_name, location_relation_count)
+plt.xticks(rotation=90)
+plt.title("company->location relations")
+plt.ylabel("Number of relations")
+plt.savefig("plots/location_distribution.png", bbox_inches="tight")
 
 
 company_chemical_distribution = db.execute("""
-        SELECT hierarchy, COUNT(hierarchy)
-        FROM company_chemical
-        GROUP BY hierarchy
-        ORDER BY COUNT(hierarchy) ASC
+        SELECT r.hierarchy, COUNT(r.hierarchy)
+        FROM company_chemical_relations r, articles a
+        WHERE r.article = a.link AND a.release_date >= '2015-01-01'
+        GROUP BY r.hierarchy
+        ORDER BY COUNT(r.hierarchy) ASC
 """)
 company_chemical_name = [x[0] for x in company_chemical_distribution]
 company_chemical_count = [x[1] for x in company_chemical_distribution]
-print(company_chemical_distribution)
 
 plt.figure()
-plt.subplot(1, 2, 1)
+plt.subplot(1, 3, 1)
 plt.pie(company_chemical_count, labels = company_chemical_name, autopct='%1.1f%%')
 plt.title("company->chemical")
 
-
-
 company_location_distribution = db.execute("""
-        SELECT hierarchy, COUNT(hierarchy)
-        FROM company_location
-        GROUP BY hierarchy
-        ORDER BY COUNT(hierarchy) ASC
+        SELECT r.hierarchy, COUNT(r.hierarchy)
+        FROM company_location_relations r, articles a
+        WHERE r.article = a.link AND a.release_date >= '2015-01-01'
+        GROUP BY r.hierarchy
+        ORDER BY COUNT(r.hierarchy) ASC
 """)
 
 company_location_name = [x[0] for x in company_location_distribution]
 company_location_count = [x[1] for x in company_location_distribution]
-print(company_location_distribution)
 
-plt.subplot(1, 2, 2)
+plt.subplot(1, 3, 2)
 plt.pie(company_location_count, labels = company_location_name, autopct='%1.1f%%')
 plt.title("company->location")
 
-plt.savefig("plots/hierarchies.png")
+chemical_location_distribution = db.execute("""
+        SELECT r.hierarchy, COUNT(r.hierarchy)
+        FROM chemical_location_relations r, articles a
+        WHERE r.article = a.link AND a.release_date >= '2015-01-01'
+        GROUP BY r.hierarchy
+        ORDER BY COUNT(r.hierarchy) ASC
+""")
+
+chemical_location_name = [x[0] for x in chemical_location_distribution]
+chemical_location_count = [x[1] for x in chemical_location_distribution]
+
+plt.subplot(1, 3, 3)
+plt.pie(chemical_location_count, labels = chemical_location_name, autopct='%1.1f%%')
+plt.title("chemical->location")
+
+plt.savefig("plots/hierarchies.png", bbox_inches="tight")
 
 with driver.session() as session:
     carcinogen_waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'YES' RETURN SUM(toInteger(n.total_releases_in_pounds)) AS sum, n.year AS year")
