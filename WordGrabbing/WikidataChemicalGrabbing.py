@@ -1,3 +1,5 @@
+# Searching for chemicals in the articles by quering wikidata
+
 import sys
 import spacy
 from lodstorage.query import Query

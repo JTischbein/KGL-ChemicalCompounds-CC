@@ -1,3 +1,5 @@
+# Crawling for content of articles from icismarkit
+
 from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options

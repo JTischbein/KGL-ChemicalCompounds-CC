@@ -1,3 +1,5 @@
+# Getting data from postgres database, restructure them and save them in the neo4j database
+
 import psycopg2
 
 from tqdm import tqdm

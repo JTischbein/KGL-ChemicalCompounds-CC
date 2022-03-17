@@ -1,3 +1,5 @@
+# This script crawls for links on ihsmarkit.com
+
 from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options

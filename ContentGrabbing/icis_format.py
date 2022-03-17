@@ -1,3 +1,5 @@
+# In some icis articles we have html remains. To remove this, run this script
+
 from Database import Database
 import re
 db = Database('config.ini').connect()

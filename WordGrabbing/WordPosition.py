@@ -1,3 +1,5 @@
+# Saving sentences with company occurences, the companies that occur and their positions in the sentence as training data
+
 import sys
 
 sys.path.append('../')

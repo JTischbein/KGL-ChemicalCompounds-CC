@@ -1,3 +1,5 @@
+# Adding all articles to neo4j database
+
 from neo4j import GraphDatabase
 import psycopg2
 

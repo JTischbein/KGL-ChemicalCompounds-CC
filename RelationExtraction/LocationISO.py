@@ -1,3 +1,5 @@
+# Adding the location ISO to relation tables 
+
 import sys
 sys.path.append("../")
 from Database import Database

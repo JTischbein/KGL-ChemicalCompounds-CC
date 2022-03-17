@@ -1,3 +1,5 @@
+# Get from wikidata chemical companies and save them in companies_wikidata
+
 import sys
 sys.path.append('../')
 from Database import Database

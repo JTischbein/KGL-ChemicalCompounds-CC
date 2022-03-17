@@ -1,3 +1,7 @@
+# Training the spacy NER model with training data from wordposition.py in WordGrabbing
+# Parts of the code are from Qinghe Gao - TU Delft
+# Runs with errors, reason not found to this date...
+
 from sre_constants import IN
 from spacy.training.example import Example
 from html import entities

@@ -1,3 +1,6 @@
+# Getting waste data from an other source than the newspaper articles.
+# This script crawls the tri_2016-2020_us.zip file
+
 import csv
 from neo4j import GraphDatabase
 import re
@@ -71,7 +74,7 @@ def insert_graph_data(driver, data_list):
             with driver.session() as session:
                 session.run(
                     "CREATE (a:Waste {wasteID: '%d', year: '%d', chemical: '%s', total_releases:'%d', total_recycling: '%d', measurement_unit: '%s', carcinogen: '%s'})" % (
-                    wasteID, data[2], data[3], data[4], data[5], data[6], data[7))
+                    wasteID, data[2], data[3], data[4], data[5], data[6], data[7]))
                 
                 session.run(
                     "MATCH (a:Waste {wasteID: '%d'}), (b:Company {name: '%s'}) CREATE (b)-[r:RESPONSIBLE_FOR]->(a)" % (

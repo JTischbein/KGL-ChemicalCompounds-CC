@@ -1,3 +1,5 @@
+# Delete all duplicate articles (content duplicates), as there are articles with different links but the same content
+
 from Database import Database
 
 db = Database('dbcfg.ini').connect()

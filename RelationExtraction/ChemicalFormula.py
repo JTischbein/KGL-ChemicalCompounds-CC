@@ -1,3 +1,5 @@
+# Saving the chemical formulas in the relation tables
+
 import sys
 sys.path.append("../")
 

@@ -1,3 +1,5 @@
+# Crawling for content of articles from ihs markit
+
 from newspaper import Article
 import sys
 sys.path.append('../')

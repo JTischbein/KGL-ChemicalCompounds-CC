@@ -1,3 +1,5 @@
+# Searching for companies via synonyms from a database table
+
 import sys
 sys.path.append('../')
 import spacy

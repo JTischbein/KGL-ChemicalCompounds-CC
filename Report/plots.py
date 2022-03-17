@@ -1,3 +1,5 @@
+# Genrating plots for the presentation and the report
+
 import psycopg2
 import matplotlib.pyplot as plt
 import os

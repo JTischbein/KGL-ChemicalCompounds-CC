@@ -1,3 +1,5 @@
+# Crawling for content of articles from chemietechnik
+
 import sys
 import time
 sys.path.append('../')

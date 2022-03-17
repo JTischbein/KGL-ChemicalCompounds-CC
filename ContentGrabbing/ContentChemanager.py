@@ -1,3 +1,5 @@
+# Crawling for content of articles from chemanager
+
 from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys

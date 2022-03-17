@@ -1,3 +1,5 @@
+# Get from wikipedia chemical companies and save them in companies_wikipedia
+
 import sys
 sys.path.append('../')
 from Database import Database
@@ -29,5 +31,5 @@ print(len(companies))
 db = Database('./config.ini').connect()
 
 for word in companies:
-    db.add_word_to_dict('company_dict', word)
+    db.execute('INSERT INTO companies_wikipedia (synonym) VALUES (%s)', attributes=(word,))
 

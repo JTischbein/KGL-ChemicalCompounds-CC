@@ -1,3 +1,7 @@
+# This script crawls for relations between to categories/tables.
+# For running it takes 5 arguments, for example: python Relations.py companies locations company location company_location_relations
+# Further explanation in README
+
 import sys
 sys.path.append("../")
 

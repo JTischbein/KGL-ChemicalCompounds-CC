@@ -1,3 +1,5 @@
+# This script crawls all articles from chemanager-online.com
+
 from configparser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys

@@ -1,3 +1,6 @@
+# This script adds to all chemicals in the chemicals table the chemical formula.
+# We get the formulas by quering wikidata with the chemical synonym.
+
 from re import sub
 import sys
 sys.path.append('../')

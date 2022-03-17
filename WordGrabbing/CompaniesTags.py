@@ -1,3 +1,5 @@
+# For simpler queries, we add the wikidata tags from companies_wikidata to our companies occurences table. This script does this
+
 import sys
 sys.path.append("../")
 from Database import Database

@@ -1,3 +1,5 @@
+# Add only articles to neo4j which occur in relations and are from wikidata
+
 from neo4j import GraphDatabase
 import psycopg2
 
