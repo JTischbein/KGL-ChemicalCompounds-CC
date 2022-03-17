@@ -1,6 +1,6 @@
 spacy
 nltk
-psycopg2
+psycopg2-binary
 tqdm
 configparser
 pylodstorage
@@ -10,7 +10,7 @@ geotext
 selenium
 beautifulsoup4
 requests
-fasttext
+fasttext-wheel
 langid
 langdetect
 newspaper3k
