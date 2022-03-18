@@ -19,8 +19,6 @@ from KnowledgeGraph.KnowledgeGraph import KnowledgeGraph
 
 <<<<<<< HEAD
 =======
-import config
-#import graph_config
 >>>>>>> 37481b4 (Report: Updated relation plots)
 
 try:
@@ -260,15 +258,15 @@ with driver.session() as session:
 with driver.session() as session:
     findings_amount = []
     findings_value = []
-    for i in range(1, 11):
-        finding = session.run("MATCH (p) WHERE size((p)-[:CONTAINS]->()) = %s RETURN count(p) AS amount" % i)
+    for i in range(0, 11):
+        finding = session.run("MATCH (p:Article) WHERE size((p)-[:CONTAINS]->()) = %s RETURN count(p) AS amount" % i)
         finding = [int(row["amount"]) for row in finding]
         findings_amount.append(finding[0])
         findings_value.append("%d" % i)
 
     plt.figure()
     plt.bar(findings_value, findings_amount)
-    plt.title("Findings in Articles Distribution")
+    plt.title("Distinct Findings in Articles Distribution")
     plt.ylabel("Findings")
     plt.savefig("plots/findings_in_articles_distribution.png")
 
