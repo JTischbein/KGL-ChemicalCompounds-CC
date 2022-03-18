@@ -113,7 +113,7 @@ CREATE TABLE public.company_chemical_relations (
 CREATE TABLE public.company_location_relations (
     company text,
     location text,
-    hierarchy_level integer,
+    hierarchy integer,
     word_gap integer,
     article text,
     iso text
@@ -122,7 +122,7 @@ CREATE TABLE public.company_location_relations (
 CREATE TABLE public.chemical_location_relations (
     chemical text,
     location text,
-    hierarchy_level integer,
+    hierarchy integer,
     word_gap integer,
     article text,
     iso text,
