@@ -19,6 +19,7 @@
   - [Relation Extraction](#relation-extraction)
   - [Knowledge Graph](#knowledge-graph)
     - [Waste Content](#waste-content)
+- [Documentation](#documentation)
 
 ## General
 
@@ -211,3 +212,7 @@ The whole database structure can be converted into a Neo4j graph database. For t
 ### Waste Content
 
 The Waste Content is extracted via `wastes_content_graph.py`  from the csv file in `tri_2016-2020_us.zip`, which only contains data from factories in the USA from 2016 until 2020, provided by the `U.S. Environmental Protection Agency` ([U.S. EPA](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-data-files-calendar-years-1987-present)). The data is not recorded in the rational database, but immediately stored in the Knowledge Graph. 
+
+# Documentation
+
+Most of the Python scripts are implemented to be executed exactly once. However, we provide a ([docstring](https://www.programiz.com/python-programming/docstrings)) documentation for the database interfaces in [Database.py](Database.py) and [KnowledgeGraph.py](KnowledgeGraph/KnowledgeGraph.py).
