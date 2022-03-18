@@ -34,9 +34,6 @@ if __name__ == "__main__":
     
     graph = KGL_graph(config["NEO4J"]["GRAPH_HOST"], config["NEO4J"]["GRAPH_USER"], config["NEO4J"]["GRAPH_PASSWORD"])
     
-    conn = psycopg2.connect(host="tischbe.in", port="5435", dbname="postgres", user="postgres",
-                            password="KGL:CC#2-151-1")
-    cur = conn.cursor()
     articles = []
 
     articles += db.execute("SELECT DISTINCT articles.link, articles.content, articles.release_date, articles.language FROM (articles INNER JOIN chemical_location_relations ON articles.link = chemical_location_relations.article)")
