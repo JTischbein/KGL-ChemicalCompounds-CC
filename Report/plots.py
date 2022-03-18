@@ -231,7 +231,7 @@ plt.title("chemical->location")
 plt.savefig("plots/hierarchies.png", bbox_inches="tight")
 
 with driver.session() as session:
-    carcinogen_waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'YES' RETURN SUM(toInteger(n.total_releases_in_pounds)) AS sum, n.year AS year")
+    carcinogen_waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'YES' RETURN SUM(toInteger(n.total_releases) AS sum, n.year AS year")
     carcinogen_waste = [[int(row["sum"]), row["year"]] for row in carcinogen_waste]
     carcinogen_waste_year = [row[1] for row in carcinogen_waste]
     carcinogen_waste_sum = [row[0] for row in carcinogen_waste]
@@ -244,7 +244,7 @@ with driver.session() as session:
 
 
 with driver.session() as session:
-    waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'NO' RETURN SUM(toInteger(n.total_releases_in_pounds)) AS sum, n.year AS year")
+    waste = session.run("MATCH (n:Waste) WHERE n.carcinogen = 'NO' RETURN SUM(toInteger(n.total_releases)) AS sum, n.year AS year")
     waste = [[int(row["sum"]), row["year"]] for row in waste]
     waste_year = [row[1] for row in waste]
     waste_sum = [row[0] for row in waste]
@@ -258,7 +258,7 @@ with driver.session() as session:
 with driver.session() as session:
     findings_amount = []
     findings_value = []
-    for i in range(0, 11):
+    for i in range(1, 11):
         finding = session.run("MATCH (p:Article) WHERE size((p)-[:CONTAINS]->()) = %s RETURN count(p) AS amount" % i)
         finding = [int(row["amount"]) for row in finding]
         findings_amount.append(finding[0])
