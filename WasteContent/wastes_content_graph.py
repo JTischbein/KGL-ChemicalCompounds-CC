@@ -4,12 +4,13 @@
 import csv
 from neo4j import GraphDatabase
 import re
+from configparser import ConfigParser
 
-HOST_GRAPH = ""
-USER_GRAPH = ""
-PASSWORD_GRAPH = ""
+config = ConfigParser()
+config.read("../config.ini")
 
 CSV_LINK = ""
+
 
 def get_company_wastes(company_name, file):
     rows = []
@@ -84,7 +85,7 @@ def insert_graph_data(driver, data_list):
 
 
 if __name__ == "__main__":
-    driver = GraphDatabase.driver(HOST_GRAPH, auth=(USER_GRAPH, PASSWORD_GRAPH))
+    driver = GraphDatabase.driver(config["NEO4J"]["GRAPH_HOST"], auth=(config["NEO4J"]["GRAPH_USER"], config["NEO4J"]["GRAPH_PASSWORD"]))
     insert_graph_data(driver, get_companies_years_waste(
         get_company_wastes(get_graph_companies(driver), CSV_LINK)))
     driver.close()
