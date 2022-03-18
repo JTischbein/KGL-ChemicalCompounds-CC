@@ -22,14 +22,13 @@ if __name__ == "__main__":
 
     graph.delete_all()
 
-    # Add all companies to the graph
-    companies = db.execute("SELECT DISTINCT synonym FROM companies")
-
-    companies = [company[0] for company in companies]
-    print("Adding companies to the graph")
-    for company in tqdm(companies):
-        graph.create_entity(company, "Company")
+    # Add all locations to the graph
+    locations = db.execute("SELECT iso, array_agg(DISTINCT synonym) FROM locations GROUP BY iso;")
     
+    print("Adding locations to the graph") 
+    for location in tqdm(locations):
+        graph.create_entity(location[0], "Location", synonyms=location[1])
+
     # Add all chemicals to the graph
     chemicals = db.execute("SELECT ch.chemical_formula, ch.tag, array_agg(DISTINCT ch2.synonym) FROM chemicals ch LEFT JOIN chemicals ch2 ON ch.chemical_formula = ch2.chemical_formula GROUP BY ch.chemical_formula, ch.tag")
 
@@ -38,13 +37,16 @@ if __name__ == "__main__":
     for chemical in tqdm(chemicals):
         graph.create_entity(chemical[0], "chemical_compound", synonyms=chemical[2])
     
-    # Add all locations to the graph
-    locations = db.execute("SELECT iso, array_agg(DISTINCT synonym) FROM locations GROUP BY iso;")
-    
-    print("Adding locations to the graph") 
-    for location in tqdm(locations):
-        graph.create_entity(location[0], "Location", synonyms=locations[1])
+    # Add all companies to the graph
+    companies = db.execute("SELECT DISTINCT synonym FROM companies")
 
+    companies = [company[0] for company in companies]
+    print("Adding companies to the graph")
+    for company in tqdm(companies):
+        graph.create_entity(company, "Company")
+    
+    
+    
     # Add company->chemical relationships
     company_chemical = db.execute("""SELECT company, chemical_formula, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
                 SELECT company, chemical_formula, hierarchy, count(hierarchy) as hcount, AVG(word_gap) as wg
