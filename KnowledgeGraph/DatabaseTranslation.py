@@ -23,7 +23,7 @@ if __name__ == "__main__":
     graph.delete_all()
 
     # Add all companies to the graph
-    companies = db.execute("SELECT DISTINCT companies.synonym FROM companies INNER JOIN companies_wikidata cd on companies.synonym = cd.name;")
+    companies = db.execute("SELECT DISTINCT synonym FROM companies")
 
     companies = [company[0] for company in companies]
     print("Adding companies to the graph")
@@ -39,12 +39,11 @@ if __name__ == "__main__":
         graph.create_entity(chemical[0], "chemical_compound", synonyms=chemical[2])
     
     # Add all locations to the graph
-    locations = db.execute("SELECT DISTINCT synonym FROM locations")
+    locations = db.execute("SELECT iso, array_agg(DISTINCT synonym) FROM locations GROUP BY iso;")
     
-    locations = [location[0] for location in locations]
     print("Adding locations to the graph") 
     for location in tqdm(locations):
-        graph.create_entity(location, "Location")
+        graph.create_entity(location[0], "Location", synonyms=locations[1])
 
     # Add company->chemical relationships
     company_chemical = db.execute("""SELECT company, chemical_formula, array_agg(hierarchy) as hierarchy, array_agg(hcount) as count, array_agg(wg) as word_gap FROM (
