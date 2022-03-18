@@ -63,6 +63,7 @@ docker run --name KGLNEO --restart=always -p<PORT1>:7474 -p<PORT2>:7687 -d -v $H
 ```
 `<PORT1>` is for the web interface and `<Port2>` is for the database itself.
 
+Sometimes performace problems may occur when crawling all articles at the same time, but there is a [quick fix](https://downloadmoreram.com)
 We use 2 python classes for interaction with the databases. For Postgres the `database.py`, which is used in every script. This class needs the packages `tqdm` and `psycopg2` (both can be installed with `pip`). For Neo4j we have the `KnowledgeGraph.py` in the folder Knowledge Graph. Thic class only needs `neo4j` as package (can be installed with `pip`).
 
 For specifying the login credentials and IP + Port, edit the `config.ini`.
