@@ -10,4 +10,6 @@ RUN python -m spacy download de_dep_news_trf
 
 COPY . .
 
-CMD [ "python", "-u", "/WordGrabbing.py" ]
+WORKDIR /WordGrabbing/
+
+CMD [ "python", "-u", "/WikidataChemicalGrabbing.py" ]
