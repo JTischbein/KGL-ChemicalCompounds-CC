@@ -27,7 +27,7 @@ This is the Repository of the Knowledge Graph Lab. The Goal was the creation of 
 
 Every script can be run alone when the needed environment variables are set. In the following every step for running the script and therefore building the knowledge graph is described.
 
-IMPORTANT: To run the scripts properly and ensure that every path works correctly, you have to be in the directory of the script and then run it.
+IMPORTANT: To run the scripts properly and ensure that every path works correctly, you have to be in the directory of the script and then run it. For further information, check out our [documentation](https://www.youtube.com/watch?v=o-YBDTqX_ZU).
 
 ## Packages and Environmental Variables
 
