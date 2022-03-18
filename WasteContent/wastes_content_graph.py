@@ -87,5 +87,5 @@ def insert_graph_data(driver, data_list):
 if __name__ == "__main__":
     driver = GraphDatabase.driver(config["NEO4J"]["GRAPH_HOST"], auth=(config["NEO4J"]["GRAPH_USER"], config["NEO4J"]["GRAPH_PASSWORD"]))
     insert_graph_data(driver, get_companies_years_waste(
-        get_company_wastes(get_graph_companies(driver), CSV_LINK)))
+        get_company_wastes(get_graph_companies(driver), config["WASTE"]["CSV_PATH"])))
     driver.close()
