@@ -16,9 +16,7 @@ class KGL_graph:
 
     def write_relation(self, contents, type):
         with self.driver.session() as session:
-            counter = 0
             for content in contents:
-                try:
                     if not [row["relation"] for row in session.run("MATCH (a:Article {link: '%s'}), (b:Company {name: '%s'}), p=(a)-[r:CONTAINS]->(b) RETURN p AS relation" % (content[0], content[1].replace("'", "")))]:
                         session.run("MATCH (a:Article {link: '%s'}), (b:Company {name: '%s'}) CREATE (a)-[r:CONTAINS]->(b)" % (content[0], content[1].replace("'", "")))
 
