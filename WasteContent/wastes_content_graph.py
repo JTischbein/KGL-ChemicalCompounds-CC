@@ -9,8 +9,6 @@ from configparser import ConfigParser
 config = ConfigParser()
 config.read("../config.ini")
 
-CSV_LINK = ""
-
 
 def get_company_wastes(company_name, file):
     rows = []
