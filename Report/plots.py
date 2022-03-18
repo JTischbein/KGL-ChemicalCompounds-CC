@@ -267,7 +267,7 @@ with driver.session() as session:
     plt.figure()
     plt.bar(findings_value, findings_amount)
     plt.title("Distinct Findings in Articles Distribution")
-    plt.ylabel("Findings")
+    plt.ylabel("Number of Articles")
     plt.savefig("plots/findings_in_articles_distribution.png")
 
 db.disconnect()
